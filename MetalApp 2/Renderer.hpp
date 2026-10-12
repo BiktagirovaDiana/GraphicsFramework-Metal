@@ -12,6 +12,7 @@
 #include "QuartzCore/CAMetalDrawable.hpp"
 #include "DepthBuffer.hpp"
 #include "Controller.hpp"
+#include "Parser.hpp"
 #include <simd/simd.h>
 #define NS_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
@@ -30,13 +31,15 @@ public:
         MTL::Device* device);
     void DrawCube(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable,
         MTL::Device* device);
+    void DrawModel(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable,
+                   MTL::Device* device, std::string nameModel);
     matrix_float4x4 modelMatrix = matrix_identity_float4x4;
     matrix_float4x4 viewMatrix = matrix_identity_float4x4;
     matrix_float4x4 projectionMatrix = matrix_identity_float4x4;
     Geometry geometry;
     Matrix matrix;
     DepthBuffer depthBuffer;
-    
+    Parser parser;
 private:
     MTL::RenderPipelineState* pipelineState = nullptr;
     MTL::RenderPassDescriptor* renderPassDescriptor = nullptr;

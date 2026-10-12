@@ -10,6 +10,7 @@
 
 #include "Metal/Metal.hpp"
 #include <simd/simd.h>
+#include <vector>
 
 struct Vertex
 {
@@ -27,6 +28,7 @@ public:
     MTL::Buffer* CreateSquareBuffer(MTL::Device* device);
     MTL::Buffer* CreateCubeBuffer(MTL::Device* device);
     MTL::Buffer* CreatePlaneBuffer(MTL::Device* device);
+    MTL::Buffer* CreateModelBuffer(MTL::Device* device, std::vector <float> modelVertex);
     
     uint16_t indices[36] =
     {
@@ -54,6 +56,9 @@ public:
         0, 4, 5,
         0, 5, 1
     };
+    
+    //std::vector <float> modelVertex;
+    //std::vector <uint16_t> modelIndex;
     
 };
 
