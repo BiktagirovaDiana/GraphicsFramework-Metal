@@ -8,6 +8,7 @@
 #include "Metal/Metal.hpp"
 #include <simd/simd.h>
 #include <cmath>
+#include <iostream>
 
 class Matrix
 {
@@ -26,5 +27,5 @@ public:
     matrix_float4x4 ViewMatrix(simd::float3 CameraPosition, simd::float3 CameraTarget, simd::float3 CameraUp);
     
     //Projection Matrix
-    matrix_float4x4 ProjectionMatrix();
+    matrix_float4x4 ProjectionMatrix(int width, int heigh,unsigned int FOV, float near, float far);
 };

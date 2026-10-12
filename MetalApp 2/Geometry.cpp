@@ -61,5 +61,8 @@ MTL::Buffer* Geometry::CreateCubeBuffer(MTL::Device* device)
     return device->newBuffer(cubeVertices, sizeof(cubeVertices), MTL::ResourceStorageModeShared);
 }
 
-
+MTL::Buffer* Geometry::CreatePlaneBuffer(MTL::Device* device)
+{
+    
+}
 

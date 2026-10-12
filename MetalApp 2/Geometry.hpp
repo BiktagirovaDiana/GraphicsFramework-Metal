@@ -9,6 +9,13 @@
 #define Geometry_hpp
 
 #include "Metal/Metal.hpp"
+#include <simd/simd.h>
+
+struct Vertex
+{
+    simd::float3 position;
+    simd::float4 color;
+};
 
 class Geometry
 {
@@ -19,6 +26,7 @@ public:
     MTL::Buffer* CreateTriangleBuffer(MTL::Device* device);
     MTL::Buffer* CreateSquareBuffer(MTL::Device* device);
     MTL::Buffer* CreateCubeBuffer(MTL::Device* device);
+    MTL::Buffer* CreatePlaneBuffer(MTL::Device* device);
     
     uint16_t indices[36] =
     {

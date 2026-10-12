@@ -13,7 +13,11 @@
 #import "Renderer.hpp"
 
 @interface RendererAdapter : NSObject
+-(instancetype)initWithDevice:(id <MTLDevice>) device;
 -(void)Draw:(id <CAMetalDrawable>) drawable device: (id <MTLDevice>) device;
+
+-(void)KeyDown:(int)key;
+-(void)KeyUp:(int)key;
 
 @end
 

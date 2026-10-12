@@ -101,14 +101,32 @@ matrix_float4x4 Matrix::ViewMatrix(simd::float3 CameraPosition, simd::float3 Cam
     return simd_mul(LookAt(CameraPosition, CameraTarget, CameraUp), MoveTo(CameraPosition));
 }
 
-matrix_float4x4 Matrix::ProjectionMatrix()
+matrix_float4x4 Matrix::ProjectionMatrix(int width, int height,unsigned int FOV, float near, float far)
 {
+    float a;
+    float b;
+    float c;
+    float d;
+    
+    float radians = FOV * M_PI / 180.0f;
+    
+    if(FOV <= 0 || FOV >= 180)
+    {
+        std::cout <<  "Неправильно задан FOV для камеры";
+    }
+    float aspectRatio = static_cast<float>(width) / height;
+    
+    a = 1 / (aspectRatio * simd::tan(radians/2));
+    b = 1 / (simd::tan(radians/2));
+    c = far / (near - far);
+    d = near * far/ (near - far);
+            
     return matrix_float4x4
     {
-        simd_make_float4(0.0f, 0.0f, 0.0f, 0.0f),
-        simd_make_float4(0.0f, 0.0f, 0.0f, 0.0f),
-        simd_make_float4(0.0f, 0.0f, 0.0f, 0.0f),
-        simd_make_float4(0.0f, 0.0f, 0.0f, 1.0f)
+        simd_make_float4(a, 0.0f, 0.0f, 0.0f),
+        simd_make_float4(0.0f, b, 0.0f, 0.0f),
+        simd_make_float4(0.0f, 0.0f, c, -1.0f),
+        simd_make_float4(0.0f, 0.0f, d, 0.0f)
     };
 }
 

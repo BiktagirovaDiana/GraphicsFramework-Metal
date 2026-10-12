@@ -15,6 +15,8 @@ using namespace metal;
 //получения позиции вершин на экране
 [[vertex]] float4 vertexShader(constant float *tringleVertices [[buffer(0)]],
                                constant float4x4 *modelMatrix [[buffer(1)]],
+                               constant float4x4 *viewMatrix [[buffer(2)]],
+                               constant float4x4 *projectionMatrix[[buffer(3)]],
                                ushort vertexIndex[[vertex_id]])
 {
     ushort i = vertexIndex * 3;
@@ -24,13 +26,17 @@ using namespace metal;
     const float z = tringleVertices[i + 2];
     
     float4 position = float4(x, y, z, 1.0f);
+    
+    float4 appliedModelMatrix = (*modelMatrix) * position;
+    float4 appliedViewMatrix = (*viewMatrix) * appliedModelMatrix;
+    float4 appliedProjectionMatrix = (*projectionMatrix) * appliedViewMatrix;
 
-    return (*modelMatrix) * position;
+    return appliedProjectionMatrix;
 }
 
-fragment float4 fragmentShader(
-    constant float4& color [[buffer(0)]])
+fragment float4 fragmentShader(uint primitiveId [[primitive_id]],
+                               constant float4 *faceColors [[buffer(0)]])
 {
-    return color;
+    uint faceId = primitiveId / 2; // 2 треугольника = 1 сторона куба
+    return faceColors[faceId];
 }
-
