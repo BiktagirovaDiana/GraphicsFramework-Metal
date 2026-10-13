@@ -28,8 +28,18 @@ public:
     MTL::Buffer* CreateSquareBuffer(MTL::Device* device);
     MTL::Buffer* CreateCubeBuffer(MTL::Device* device);
     MTL::Buffer* CreatePlaneBuffer(MTL::Device* device);
-    MTL::Buffer* CreateModelBuffer(MTL::Device* device, std::vector <float> modelVertex);
     
+    void CreateModelVertexBuffer(MTL::Device* device, std::vector <float> modelVertex);
+    void CreateModelIndexBuffer(MTL::Device* device, std::vector <uint16_t> modelIndex);
+    
+    void SetModelVertex(std::vector <float> Vertex);
+    void SetModelIndex(std::vector <uint16_t> Index);
+    std::vector<float> GetModelVertex();
+    std::vector<uint16_t> GetModelIndex();
+    
+    MTL::Buffer* GetModelBufferVertex();
+    MTL::Buffer* GetModelBufferIndex();
+
     uint16_t indices[36] =
     {
         // Front
@@ -57,8 +67,12 @@ public:
         0, 5, 1
     };
     
-    //std::vector <float> modelVertex;
-    //std::vector <uint16_t> modelIndex;
+private:
+    std::vector <float> modelVertex;
+    std::vector <uint16_t> modelIndex;
+    
+    MTL::Buffer* modelBufferVertex;
+    MTL::Buffer* modelBufferIndex;
     
 };
 

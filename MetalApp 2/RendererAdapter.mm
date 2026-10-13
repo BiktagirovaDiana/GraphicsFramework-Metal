@@ -21,6 +21,7 @@
     if (self)
     {
         controller = new Controller();
+        
         renderer = new Renderer((__bridge MTL::Device *)device, controller);
     }
     return self;
@@ -38,8 +39,7 @@
 
 -(void)Draw:(id<CAMetalDrawable>)drawable device:(id<MTLDevice>)device
 {
-    renderer->Draw((__bridge CA::MetalDrawable *)drawable,
-                   (__bridge MTL::Device *)device);
+    renderer->Draw((__bridge CA::MetalDrawable *)drawable);
 }
 
 - (void)dealloc

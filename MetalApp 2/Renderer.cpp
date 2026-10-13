@@ -11,221 +11,172 @@
 #include "Renderer.hpp"
 #include <iostream>
 
-
-namespace
+Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller)
 {
+    commandQueue = device->newCommandQueue(); //очередь буффер команд из GPU
+    CreateRenderPipeline();
+    CreateDepth();
+
+    parser.OpenModel("Cube");
+    cube.SetModelVertex(parser.GetModelVertex());
+    cube.SetModelIndex(parser.GetModelIndex());
+    cube.CreateModelVertexBuffer(device, cube.GetModelVertex());
+    cube.CreateModelIndexBuffer(device, cube.GetModelIndex());
+}
+Renderer::~Renderer()
+{
+    commandQueue->release(); //освобождаем очередь команд
+    pipelineState->release();
+    depthStencilState->release();
 }
 
-Renderer::Renderer(MTL::Device* device)
-{
-    CreateRenderPipeline(device);
-    CreateDepth(device);
-    
-}
-
-Renderer::Renderer(MTL::Device* device, Controller* controller) : controller(controller)
-{
-    CreateRenderPipeline(device);
-    CreateDepth(device);
-}
-
-
-void Renderer::Draw(CA::MetalDrawable* drawable, MTL::Device* device)
+void Renderer::UpdateMatrices(CA::MetalDrawable* drawable)
 {
     MTL::Texture* drawableTexture = drawable->texture();
-    depthBuffer.CreateDepthTexture(device, drawableTexture->width(), drawableTexture->height());
-    CreateRenderRenderPassDescriptor();
+    viewMatrix = matrix.ViewMatrix(cameraPosition, cameraTarget, cameraUp);
+    projectionMatrix = matrix.ProjectionMatrix(
+        static_cast<int>(drawableTexture->width()),
+        static_cast<int>(drawableTexture->height()),
+        120,
+        0.1f,
+        50.0f);
+}
 
-    MTL::CommandQueue* commandQueue = device->newCommandQueue(); //очередь буффер команд из GPU
+void Renderer::UpdateDeltaTime()
+{
+    auto currentTime = std::chrono::steady_clock::now();
+
+    deltaTime = std::chrono::duration<float>(currentTime - lastFrameTime).count();
+    lastFrameTime = currentTime;
+}
+void Renderer::Draw(CA::MetalDrawable* drawable)
+{
+    if (drawable == nullptr)
+    {
+        return;
+    }
+        
+    MTL::Texture* drawableTexture = drawable->texture();
+    MTL::Texture* depthTexture = depthBuffer.GetDepthTexture();
+    if(depthTexture == nullptr || depthTexture->width() != drawableTexture->width() ||depthTexture->height() != drawableTexture->height())
+    {
+        depthBuffer.CreateDepthTexture(device, drawableTexture->width(), drawableTexture->height());
+    }
+    
+    CreateRenderRenderPassDescriptor(drawable);
     MTL::CommandBuffer* cmdBuf = commandQueue->commandBuffer(); //буфер команд
+    MTL::RenderCommandEncoder* encoder = cmdBuf->renderCommandEncoder(renderPassDescriptor);
+    encoder->setRenderPipelineState(pipelineState);
+    encoder->setDepthStencilState(depthStencilState);
+    UpdateDeltaTime();
+    
+    UpdateCamera(deltaTime);
+    UpdateMatrices(drawable);
+    DrawModel(encoder, cube);
     
     
-    ClearColor(renderPassDescriptor, cmdBuf, drawable);
-    //DrawTriangle(renderPassDescriptor, cmdBuf, drawable, device);
-    //DrawCube(renderPassDescriptor, cmdBuf, drawable, device);
-    DrawModel(renderPassDescriptor, cmdBuf,drawable, device, "Cube");
-    
-
+    encoder->endEncoding();
     cmdBuf->presentDrawable(drawable); //вывод на экран
     cmdBuf->commit(); //отправка буффера команд в очередь из буфферов команд (CommandQueue)
     
-    //vertexBuffer->release();
-    commandQueue->release(); //освобождаем очередь команд
     renderPassDescriptor->release(); //свобода
+    
+    
 }
-void Renderer::ClearColor(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf, CA::MetalDrawable* drawable)
+void Renderer::UpdateCamera(float deltaTime)
 {
+    if (!controller)
+    {
+        return;
+    }
+
+        float cameraSpeed = 3.0f * deltaTime;
+
+        simd::float3 forward =
+            simd::normalize(cameraTarget - cameraPosition);
+
+        simd::float3 right =
+            simd::normalize(simd::cross(forward, cameraUp));
+
+        simd::float3 movement = {0.0f, 0.0f, 0.0f};
+
+        if (controller->IsKeyDown(Key::W))
+            movement += forward;
+
+        if (controller->IsKeyDown(Key::S))
+            movement -= forward;
+
+        if (controller->IsKeyDown(Key::A))
+            movement -= right;
+
+        if (controller->IsKeyDown(Key::D))
+            movement += right;
+
+        if (controller->IsKeyDown(Key::Space))
+            movement += cameraUp;
+
+        if (controller->IsKeyDown(Key::Shift))
+            movement -= cameraUp;
+
+        cameraPosition += movement * cameraSpeed;
+        cameraTarget += movement * cameraSpeed;
+}
+
+void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
+{
+    encoder -> setVertexBuffer(model.GetModelBufferVertex(), 0 ,0);
+    if(n < 181)
+    {
+        n = n + 1;
+    }
+    else{
+        n = 0;
+    }
+    matrix_float4x4 modelMatrix = matrix.MakeRotation(0.0f, n, 0.0f);
+    
+    
+    
+    encoder -> setVertexBytes(&modelMatrix, sizeof(modelMatrix), 1);
+    encoder -> setVertexBytes(&viewMatrix, sizeof(viewMatrix), 2);
+    encoder -> setVertexBytes(&projectionMatrix, sizeof(projectionMatrix), 3);
+    
+    simd::float4 red = {1.0f, 0.0f, 0.0f, 1.0f};
+    encoder->setFragmentBytes(&red, sizeof(red), 0);
+    
+    
+    encoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, model.GetModelIndex().size(),
+        MTL::IndexTypeUInt16, model.GetModelBufferIndex(),0);
+    
+
+}
+
+void Renderer::CreateDepth()
+{
+    depthStencilDescriptor = MTL::DepthStencilDescriptor::alloc()->init();
+    depthStencilDescriptor->setDepthCompareFunction(MTL::CompareFunctionLess);
+    depthStencilDescriptor->setDepthWriteEnabled(true);
+    depthStencilState = device->newDepthStencilState(depthStencilDescriptor);
+    depthStencilDescriptor->release();
+}
+void Renderer::CreateRenderRenderPassDescriptor(CA::MetalDrawable* drawable)
+{
+    renderPassDescriptor = MTL::RenderPassDescriptor::alloc()->init();
     //указываем где мы рисуем (текстура для рисования), в нашем случае на экране drawable
     renderPassDescriptor->colorAttachments()->object(0)->setTexture(drawable->texture());
     //очистка экрана
     renderPassDescriptor->colorAttachments()->object(0)->setLoadAction(MTL::LoadActionClear);
     //заполнение цветом
     renderPassDescriptor->colorAttachments()->object(0)->setClearColor(MTL::ClearColor::Make(0.55, 0.55, 0.55, 1.0));
+    renderPassDescriptor->colorAttachments()->object(0)->setStoreAction(MTL::StoreActionStore);
     
-    MTL::RenderCommandEncoder* encoder = cmdBuf->renderCommandEncoder(renderPassDescriptor);
-    encoder->endEncoding(); //окончание рендер прохода
-}
-
-void Renderer::DrawTriangle(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable, MTL::Device* device)
-{
-    MTL::Buffer* vertexBuffer = geometry.CreateTriangleBuffer(device); //создаем буффер с данными вершин треугольника
-    MTL::RenderCommandEncoder* encoder = cmdBuf->renderCommandEncoder(renderPassDescriptor);
-    encoder->setRenderPipelineState(pipelineState);
-    encoder->setVertexBuffer(vertexBuffer, 0 ,0);
-    encoder->drawPrimitives(MTL::PrimitiveTypeTriangle, NS::UInteger(0),NS::UInteger(3));
-    encoder->endEncoding();
-}
-void Renderer::DrawSquare(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable, MTL::Device* device)
-{
-    MTL::Buffer* vertexBuffer = geometry.CreateSquareBuffer(device);
-    MTL::RenderCommandEncoder* encoder = cmdBuf->renderCommandEncoder(renderPassDescriptor);
-    encoder->setRenderPipelineState(pipelineState);
-    encoder->setVertexBuffer(vertexBuffer, 0 ,0);
-    simd::float4 red = {1.0f, 0.0f, 0.0f, 1.0f};
-    encoder->setFragmentBytes(&red, sizeof(red), 0);
-    encoder->drawPrimitives(MTL::PrimitiveTypeTriangle, NS::UInteger(0),NS::UInteger(6));
-    encoder->endEncoding();
-}
-
-void Renderer::DrawCube(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable,
-                        MTL::Device* device)
-{
-    MTL::Buffer* vertexBuffer = geometry.CreateCubeBuffer(device);
-    MTL::Buffer* indexBuffer = device-> newBuffer(geometry.indices, sizeof(geometry.indices), MTL::ResourceStorageModeShared);
-    MTL::RenderCommandEncoder* encoder = cmdBuf->renderCommandEncoder(renderPassDescriptor);
-    encoder->setRenderPipelineState(pipelineState);
-    encoder -> setVertexBuffer(vertexBuffer, 0 ,0);
-    matrix_float4x4 modelMatrix = matrix.MakeRotation(30.0f, 45.0f, 0.0f);
-    if (controller != nullptr)
-    {
-        float cameraSpeed = 0.05f;
-
-        if (controller->IsKeyDown(Key::W))
-        {
-            cameraPosition.z -= cameraSpeed;
-        }
-        if (controller->IsKeyDown(Key::S))
-        {
-            cameraPosition.z += cameraSpeed;
-        }
-        if (controller->IsKeyDown(Key::A))
-        {
-            cameraPosition.x -= cameraSpeed;
-        }
-        if (controller->IsKeyDown(Key::D))
-        {
-            cameraPosition.x += cameraSpeed;
-        }
-    }
-
-    simd_float3 cameraTarget = {0.0f, 0.0f, 0.0f};
-    simd_float3 cameraUp = {0.0f, 1.0f, 0.0f};
     
-    matrix_float4x4 viewMatrix = matrix.ViewMatrix(cameraPosition, cameraTarget, cameraUp);
-    MTL::Texture* drawableTexture = drawable->texture();
-    matrix_float4x4 projectionMatrix = matrix.ProjectionMatrix(
-        static_cast<int>(drawableTexture->width()),
-        static_cast<int>(drawableTexture->height()),
-        120,
-        0.1f,
-        50.0f);
-    
-    encoder -> setVertexBytes(&modelMatrix, sizeof(modelMatrix), 1);
-    encoder -> setVertexBytes(&viewMatrix, sizeof(viewMatrix), 2);
-    encoder -> setVertexBytes(&projectionMatrix, sizeof(projectionMatrix), 3);
-    //simd::float4 red = {1.0f, 0.0f, 0.0f, 1.0f};
-    //encoder->setFragmentBytes(&red, sizeof(red), 0);
-    simd::float4 faceColors[6] =
-    {
-        {1.0f, 0.0f, 0.0f, 1.0f}, // Front
-        {0.0f, 1.0f, 0.0f, 1.0f}, // Back
-        {0.0f, 0.0f, 1.0f, 1.0f}, // Left
-        {1.0f, 1.0f, 0.0f, 1.0f}, // Right
-        {1.0f, 0.0f, 1.0f, 1.0f}, // Top
-        {0.0f, 1.0f, 1.0f, 1.0f}  // Bottom
-    };
-
-    encoder->setFragmentBytes(faceColors, sizeof(faceColors), 0);
-    encoder->setDepthStencilState(depthStencilState);
-    encoder -> drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, 36, MTL::IndexTypeUInt16, indexBuffer, 0);
-    encoder->setRenderPipelineState(pipelineState);
-    encoder->endEncoding();
-}
-void Renderer::DrawModel(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable, MTL::Device* device, std::string nameModel)
-{
-    parser.OpenModel(nameModel);
-    std::vector <float> modelVertex = parser.GetModelVertex();
-    std::vector <uint16_t> modelIndex = parser.GetModelIndex();
-    
-    MTL::Buffer* vertexBuffer = geometry.CreateModelBuffer(device, modelVertex);
-    MTL::Buffer* indexBuffer = device-> newBuffer(modelIndex.data(), modelIndex.size() * sizeof(uint16_t) , MTL::ResourceStorageModeShared);
-    MTL::RenderCommandEncoder* encoder = cmdBuf->renderCommandEncoder(renderPassDescriptor);
-    encoder->setRenderPipelineState(pipelineState);
-    encoder -> setVertexBuffer(vertexBuffer, 0 ,0);
-    if (controller != nullptr)
-    {
-        float cameraSpeed = 0.05f;
-
-        if (controller->IsKeyDown(Key::W))
-        {
-            cameraPosition.z -= cameraSpeed;
-        }
-        if (controller->IsKeyDown(Key::S))
-        {
-            cameraPosition.z += cameraSpeed;
-        }
-        if (controller->IsKeyDown(Key::A))
-        {
-            cameraPosition.x -= cameraSpeed;
-        }
-        if (controller->IsKeyDown(Key::D))
-        {
-            cameraPosition.x += cameraSpeed;
-        }
-    }
-    matrix_float4x4 modelMatrix = matrix.MakeRotation(0.0f, 0.0f, 0.0f);
-    simd_float3 cameraTarget = {0.0f, 0.0f, 0.0f};
-    simd_float3 cameraUp = {0.0f, 1.0f, 0.0f};
-    
-    matrix_float4x4 viewMatrix = matrix.ViewMatrix(cameraPosition, cameraTarget, cameraUp);
-    MTL::Texture* drawableTexture = drawable->texture();
-    matrix_float4x4 projectionMatrix = matrix.ProjectionMatrix(
-        static_cast<int>(drawableTexture->width()),
-        static_cast<int>(drawableTexture->height()),
-        120,
-        0.1f,
-        50.0f);
-    
-    encoder -> setVertexBytes(&modelMatrix, sizeof(modelMatrix), 1);
-    encoder -> setVertexBytes(&viewMatrix, sizeof(viewMatrix), 2);
-    encoder -> setVertexBytes(&projectionMatrix, sizeof(projectionMatrix), 3);
-    
-    simd::float4 red = {1.0f, 0.0f, 0.0f, 1.0f};
-    encoder->setFragmentBytes(&red, sizeof(red), 0);
-
-    encoder->setDepthStencilState(depthStencilState);
-    encoder -> drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, modelIndex.size(), MTL::IndexTypeUInt16, indexBuffer, 0);
-    encoder->setRenderPipelineState(pipelineState);
-    encoder->endEncoding();
-
-}
-
-void Renderer::CreateDepth(MTL::Device* device)
-{
-    depthStencilDescriptor = MTL::DepthStencilDescriptor::alloc()->init();
-    depthStencilDescriptor->setDepthCompareFunction(MTL::CompareFunctionLess);
-    depthStencilDescriptor->setDepthWriteEnabled(true);
-    depthStencilState = device->newDepthStencilState(depthStencilDescriptor);
-}
-void Renderer::CreateRenderRenderPassDescriptor()
-{
-    renderPassDescriptor = MTL::RenderPassDescriptor::alloc()->init(); //заполняем буффер команд
     renderPassDescriptor->depthAttachment()->setTexture(depthBuffer.GetDepthTexture());
     renderPassDescriptor->depthAttachment()->setLoadAction(MTL::LoadActionClear); //очистка буффера глубины перед отрисовкой
     renderPassDescriptor->depthAttachment()->setClearDepth(1.0);
+    renderPassDescriptor->depthAttachment()->setStoreAction(MTL::StoreActionDontCare);
 }
 
-void Renderer::CreateRenderPipeline(MTL::Device* device)
+void Renderer::CreateRenderPipeline()
 {
     MTL::Library* library = device->newDefaultLibrary(); //берем скомпилированную библиотеку шейдеров метал
     MTL::Function* vertexFunction = library->newFunction(NS::String::string("vertexShader", NS::UTF8StringEncoding));
@@ -243,5 +194,10 @@ void Renderer::CreateRenderPipeline(MTL::Device* device)
     
     NS::Error* error = nullptr;
     pipelineState = device -> newRenderPipelineState(pipelineDescriptor, &error);
+    
+    vertexFunction->release();
+    fragmentFunction->release();
+    pipelineDescriptor->release();
+    library->release();
 }
 

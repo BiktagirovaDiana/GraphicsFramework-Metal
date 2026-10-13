@@ -73,6 +73,13 @@
         case 2:
             [rendererAdapter KeyDown:4]; // D
             break;
+        case 49:
+            [rendererAdapter KeyDown:5]; // Space
+            break;
+        case 56:
+        case 60:
+            [rendererAdapter KeyDown:6]; // Shift
+            break;
     }
 }
 
@@ -92,6 +99,25 @@
         case 2:
             [rendererAdapter KeyUp:4]; // D
             break;
+        case 49:
+            [rendererAdapter KeyUp:5]; // Space
+            break;
+        case 56:
+        case 60:
+            [rendererAdapter KeyUp:6]; // Shift
+            break;
+    }
+}
+
+- (void)flagsChanged:(NSEvent *)event
+{
+    if (event.modifierFlags & NSEventModifierFlagShift)
+    {
+        [rendererAdapter KeyDown:6]; // Shift
+    }
+    else
+    {
+        [rendererAdapter KeyUp:6]; // Shift
     }
 }
 

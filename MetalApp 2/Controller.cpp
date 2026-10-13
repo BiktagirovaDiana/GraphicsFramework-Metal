@@ -26,6 +26,9 @@ void Controller::KeyDown(Key key)
         case Key::Space:
             spacePressed = true;
             break;
+        case Key::Shift:
+            shiftPressed = true;
+            break;
         case Key::None:
             break;
     }
@@ -50,6 +53,9 @@ void Controller::KeyUp(Key key)
         case Key::Space:
             spacePressed = false;
             break;
+        case Key::Shift:
+            shiftPressed = false;
+            break;
         case Key::None:
             break;
     }
@@ -69,6 +75,8 @@ bool Controller::IsKeyDown(Key key) const
             return dPressed;
         case Key::Space:
             return spacePressed;
+        case Key::Shift:
+            return shiftPressed;
         case Key::None:
             return false;
     }

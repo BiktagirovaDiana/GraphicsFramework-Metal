@@ -13,6 +13,7 @@
 #include "DepthBuffer.hpp"
 #include "Controller.hpp"
 #include "Parser.hpp"
+#include <chrono>
 #include <simd/simd.h>
 #define NS_PRIVATE_IMPLEMENTATION
 #define CA_PRIVATE_IMPLEMENTATION
@@ -22,34 +23,49 @@
 class Renderer
 {
 public:
-    Renderer(MTL::Device* device);
     Renderer(MTL::Device* device, Controller* controller);
-    void Draw(CA::MetalDrawable* drawable, MTL::Device* device);
-    void ClearColor(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable);
-    void DrawTriangle(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable, MTL::Device* device);
-    void DrawSquare(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable,
-        MTL::Device* device);
-    void DrawCube(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable,
-        MTL::Device* device);
-    void DrawModel(MTL::RenderPassDescriptor* renderPassDescriptor, MTL::CommandBuffer* cmdBuf,CA::MetalDrawable* drawable,
-                   MTL::Device* device, std::string nameModel);
-    matrix_float4x4 modelMatrix = matrix_identity_float4x4;
-    matrix_float4x4 viewMatrix = matrix_identity_float4x4;
-    matrix_float4x4 projectionMatrix = matrix_identity_float4x4;
-    Geometry geometry;
-    Matrix matrix;
-    DepthBuffer depthBuffer;
-    Parser parser;
+    ~Renderer();
+    void Draw(CA::MetalDrawable* drawable);
+    void DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model);
+    
+    void CreateRenderPipeline();
+    void CreateRenderRenderPassDescriptor(CA::MetalDrawable* drawable);
+    void CreateDepth();
+    
+    void UpdateCamera(float deltaTime);
+    void UpdateMatrices(CA::MetalDrawable* drawable);
+    void UpdateDeltaTime();
+    
+    
+    
+    
 private:
     MTL::RenderPipelineState* pipelineState = nullptr;
     MTL::RenderPassDescriptor* renderPassDescriptor = nullptr;
-    Controller* controller = nullptr;
-    simd_float3 cameraPosition = {0.0f, 0.0f, 5.0f};
-    void CreateRenderPipeline(MTL::Device* device);
-    void CreateRenderRenderPassDescriptor();
-    void CreateDepth(MTL::Device* device);
-    MTL::DepthStencilDescriptor* depthStencilDescriptor = nullptr;
     MTL::DepthStencilState* depthStencilState = nullptr;
+    MTL::DepthStencilDescriptor* depthStencilDescriptor = nullptr;
+    
+    Controller* controller = nullptr;
+    MTL::Device* device = nullptr;
+    MTL::CommandQueue* commandQueue = nullptr; //очередь буффер команд из GPU
+    
+    simd_float3 cameraTarget = {0.0f, 0.0f, 0.0f};
+    simd_float3 cameraUp = {0.0f, 1.0f, 0.0f};
+    simd_float3 cameraPosition = {0.0f, 0.0f, 5.0f};
+    float n = 0;
+    matrix_float4x4 modelMatrix = matrix_identity_float4x4;
+    matrix_float4x4 viewMatrix = matrix_identity_float4x4;
+    matrix_float4x4 projectionMatrix = matrix_identity_float4x4;
+    
+    std::chrono::steady_clock::time_point lastFrameTime = std::chrono::steady_clock::now();
+    float deltaTime = 0.0f;
+    
+    Geometry geometry;
+    Geometry cube;
+    Matrix matrix;
+    DepthBuffer depthBuffer;
+    Parser parser;
+    
     
 };
 

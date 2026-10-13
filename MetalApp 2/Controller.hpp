@@ -12,7 +12,8 @@ enum class Key
     A,
     S,
     D,
-    Space
+    Space,
+    Shift
 };
 
 class Controller
@@ -28,6 +29,7 @@ private:
     bool sPressed = false;
     bool dPressed = false;
     bool spacePressed = false;
+    bool shiftPressed = false;
 };
 
 

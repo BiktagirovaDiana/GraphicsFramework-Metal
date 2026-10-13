@@ -61,7 +61,41 @@ MTL::Buffer* Geometry::CreateCubeBuffer(MTL::Device* device)
     return device->newBuffer(cubeVertices, sizeof(cubeVertices), MTL::ResourceStorageModeShared);
 }
 
-MTL::Buffer* Geometry::CreateModelBuffer(MTL::Device* device, std::vector <float> modelVertex)
+void Geometry::CreateModelVertexBuffer(MTL::Device* device, std::vector <float> modelVertex)
 {
-    return device->newBuffer(modelVertex.data(),modelVertex.size() * sizeof(float),MTL::ResourceStorageModeShared);
+    modelBufferVertex = device->newBuffer(modelVertex.data(),modelVertex.size() * sizeof(float), MTL::ResourceStorageModeShared);
 }
+void Geometry::CreateModelIndexBuffer(MTL::Device* device, std::vector <uint16_t> modelIndex)
+{
+    modelBufferIndex = device->newBuffer(modelIndex.data(), modelIndex.size() *
+        sizeof(uint16_t), MTL::ResourceStorageModeShared);
+}
+
+MTL::Buffer* Geometry::GetModelBufferVertex()
+{
+    return modelBufferVertex;
+}
+MTL::Buffer* Geometry::GetModelBufferIndex()
+{
+    return modelBufferIndex;
+}
+
+void Geometry::SetModelVertex(std::vector <float> Vertex)
+{
+    modelVertex = Vertex; 
+}
+void Geometry::SetModelIndex(std::vector <uint16_t> Index)
+{
+    modelIndex = Index;
+}
+std::vector<float> Geometry::GetModelVertex()
+{
+    return modelVertex;
+}
+
+std::vector<uint16_t> Geometry::GetModelIndex()
+{
+    return modelIndex;
+}
+
+
