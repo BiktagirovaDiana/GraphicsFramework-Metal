@@ -13,6 +13,8 @@ Parser::Parser()
 }
 void Parser::OpenModel(std::string nameFileModel)
 {
+    isNormal = false;
+    
     std::ifstream fileModel("Assets/Models/" + nameFileModel + ".obj");
     if(!fileModel.is_open())
     {
@@ -23,6 +25,8 @@ void Parser::OpenModel(std::string nameFileModel)
     
     modelVertex.clear();
     modelIndexVertex.clear();
+    modelNormal.clear();
+    modelIndexNormal.clear();
     
     while(std::getline(fileModel, line))
     {
@@ -47,41 +51,63 @@ void Parser::OpenModel(std::string nameFileModel)
                 modelNormal.push_back(x);
                 modelNormal.push_back(y);
                 modelNormal.push_back(z);
+                isNormal = true;
             }
             
         }
         if (type == "f")
         {
+            isNormal = true;
             std::vector<uint16_t> faceIndicesVertex;
             std::vector<uint16_t> faceIndicesNormal;
+
             std::string indexString;
 
             while (stream >> indexString)
             {
-                size_t pos = indexString.find('/');
-                size_t normal = indexString.find('/', pos + 1);
-                
-                std::string indexVertexString = indexString.substr(0, pos);
-                std::string indexNormalString = indexString.substr(normal+1);
+                size_t firstSlash = indexString.find('/');
+                size_t secondSlash = std::string::npos;
+
+                if (firstSlash != std::string::npos)
+                {
+                    secondSlash = indexString.find('/', firstSlash + 1);
+                }
+
+                //Индекс вершины
+                std::string indexVertexString = indexString.substr(0, firstSlash);
 
                 uint16_t vertexIndex = std::stoi(indexVertexString) - 1;
-                uint16_t normalIndex = std::stoi(indexNormalString) - 1;
-                
+
                 faceIndicesVertex.push_back(vertexIndex);
-                faceIndicesNormal.push_back(normalIndex);
+
+                //Индекс нормали
+                if (secondSlash != std::string::npos &&secondSlash + 1 < indexString.size())
+                {
+                    std::string indexNormalString = indexString.substr(secondSlash + 1);
+
+                    uint16_t normalIndex = std::stoi(indexNormalString) - 1;
+
+                    faceIndicesNormal.push_back(normalIndex);
+                }
             }
 
+            //Триангуляция вершин
             for (size_t i = 1; i + 1 < faceIndicesVertex.size(); i++)
             {
                 modelIndexVertex.push_back(faceIndicesVertex[0]);
                 modelIndexVertex.push_back(faceIndicesVertex[i]);
                 modelIndexVertex.push_back(faceIndicesVertex[i + 1]);
             }
-            for (size_t i = 1; i+1 < faceIndicesNormal.size(); i++)
+
+            // Триангуляция нормалей
+            if (faceIndicesNormal.size() == faceIndicesVertex.size())
             {
-                modelIndexNormal.push_back(faceIndicesNormal[0]);
-                modelIndexNormal.push_back(faceIndicesNormal[i]);
-                modelIndexNormal.push_back(faceIndicesNormal[i+1]);
+                for (size_t i = 1; i + 1 < faceIndicesNormal.size(); i++)
+                {
+                    modelIndexNormal.push_back(faceIndicesNormal[0]);
+                    modelIndexNormal.push_back(faceIndicesNormal[i]);
+                    modelIndexNormal.push_back(faceIndicesNormal[i + 1]);
+                }
             }
         }
         

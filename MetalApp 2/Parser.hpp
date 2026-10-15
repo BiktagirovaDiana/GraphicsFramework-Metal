@@ -32,6 +32,7 @@ public:
     Geometry geometry;
     
 private:
+    bool isNormal;
     std::vector <float> modelVertex;
     std::vector <float> modelNormal;
     std::vector <uint16_t> modelIndexVertex;

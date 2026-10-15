@@ -17,7 +17,8 @@ Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device
     CreateRenderPipeline();
     CreateDepth();
 
-    CreateModel("Cube", cube);
+    //CreateModel("Cube", cube);
+    CreateModel("Location", location);
 }
 Renderer::~Renderer()
 {
@@ -31,8 +32,8 @@ void Renderer::CreateModel(std::string NameModel, Geometry& model)
     parser.OpenModel(NameModel);
     model.SetModelVertex(parser.GetModelVertex());
     model.SetModelIndexVertex(parser.GetModelIndexVertex());
-    model.SetModelIndexNormal(parser.GetModelIndexNormal());
     model.SetModelNormal(parser.GetModelNormal());
+    model.SetModelIndexNormal(parser.GetModelIndexNormal());
     model.CreateModelVertexBuffer(device, model.GetModelVertex());
     model.CreateModelIndexVertexBuffer(device, model.GetModelIndexVertex());
     model.CreateModelIndexNormalBuffer(device, model.GetModelIndexNormal());
@@ -81,7 +82,8 @@ void Renderer::Draw(CA::MetalDrawable* drawable)
     
     UpdateCamera(deltaTime);
     UpdateMatrices(drawable);
-    DrawModel(encoder, cube);
+    //DrawModel(encoder, cube);
+    DrawModel(encoder, location);
     
     
     encoder->endEncoding();

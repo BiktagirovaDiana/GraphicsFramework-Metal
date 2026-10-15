@@ -49,6 +49,7 @@ public:
     MTL::Buffer* GetModelBufferIndexVertex();
     MTL::Buffer* GetModelBufferIndexNormal();
     
+    void CreateNormal();
 
     
 private:

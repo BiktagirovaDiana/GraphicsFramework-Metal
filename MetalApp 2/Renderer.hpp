@@ -65,6 +65,7 @@ private:
     
     Geometry geometry;
     Geometry cube;
+    Geometry location;
     Matrix matrix;
     DepthBuffer depthBuffer;
     Parser parser;

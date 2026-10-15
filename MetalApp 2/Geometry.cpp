@@ -102,7 +102,7 @@ MTL::Buffer* Geometry::GetModelBufferIndexNormal()
 
 void Geometry::SetModelVertex(std::vector <float> Vertex)
 {
-    modelVertex = Vertex; 
+    modelVertex = Vertex;
 }
 void Geometry::SetModelNormal(std::vector<float> Normal)
 {
@@ -123,16 +123,66 @@ std::vector<float> Geometry::GetModelVertex()
 
 std::vector<float> Geometry::GetModelNormal()
 {
+    if(modelNormal.empty())
+    {
+        CreateNormal();
+    }
     return modelNormal;
 }
 
 std::vector<uint16_t> Geometry::GetModelIndexVertex()
 {
+    if(modelNormal.empty())
+    {
+        CreateNormal();
+    }
     return modelIndexVertex;
 }
 
 std::vector<uint16_t> Geometry::GetModelIndexNormal()
 {
     return modelIndexNormal;
+}
+
+void Geometry::CreateNormal()
+{
+    
+    std::vector <simd::float3> positionVertex;
+    for (int i = 1; i != modelVertex.size() + 1; i++)
+    {
+        if(i % 3 == 0)
+        {
+            
+            simd::float3 position =
+            {
+                modelVertex[i-3], modelVertex[i-2], modelVertex[i-1]
+            };
+            
+            positionVertex.push_back(position);
+        }
+    }
+    for(int i = 1; i != modelIndexVertex.size(); i++)
+    {
+        if(i % 3 == 0)
+        {
+            simd::float3 A = positionVertex[modelIndexVertex[i-3]];
+            simd::float3 B = positionVertex[modelIndexVertex[i-2]];
+            simd::float3 C = positionVertex[modelIndexVertex[i-1]];
+            
+            simd::float3 AB = B - A;
+            simd::float3 AC = C - A;
+            
+            simd::float3 N = simd_normalize(simd::cross(AB, AC));
+            
+            modelNormal.push_back(N.x);
+            modelNormal.push_back(N.y);
+            modelNormal.push_back(N.z);
+            
+            modelIndexNormal.push_back((i-1)/3);
+            modelIndexNormal.push_back((i-1)/3);
+            modelIndexNormal.push_back((i-1)/3);
+        }
+    }
+    
 }
 
