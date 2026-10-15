@@ -25,12 +25,18 @@ public:
     ~Parser();
     void OpenModel(std::string nameFileModel);
     std::vector <float> GetModelVertex();
-    std::vector <uint16_t> GetModelIndex();
+    std::vector <float> GetModelNormal();
+    std::vector <uint16_t> GetModelIndexVertex();
+    std::vector <uint16_t> GetModelIndexNormal();
     
     Geometry geometry;
     
 private:
     std::vector <float> modelVertex;
-    std::vector <uint16_t> modelIndex;
+    std::vector <float> modelNormal;
+    std::vector <uint16_t> modelIndexVertex;
+    std::vector <uint16_t> modelIndexNormal;
+    
+    
 };
 #endif /* Parser_hpp */

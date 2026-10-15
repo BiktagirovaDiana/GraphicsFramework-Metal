@@ -65,37 +65,74 @@ void Geometry::CreateModelVertexBuffer(MTL::Device* device, std::vector <float> 
 {
     modelBufferVertex = device->newBuffer(modelVertex.data(),modelVertex.size() * sizeof(float), MTL::ResourceStorageModeShared);
 }
-void Geometry::CreateModelIndexBuffer(MTL::Device* device, std::vector <uint16_t> modelIndex)
+void Geometry::CreateModelNormalBuffer(MTL::Device* device, std::vector <float> modelNormal)
 {
-    modelBufferIndex = device->newBuffer(modelIndex.data(), modelIndex.size() *
+    modelBufferNormal = device->newBuffer(modelNormal.data(), modelNormal.size() * sizeof(float), MTL::ResourceStorageModeShared);
+}
+void Geometry::CreateModelIndexVertexBuffer(MTL::Device* device, std::vector <uint16_t> modelIndex)
+{
+    modelBufferIndexVertex = device->newBuffer(modelIndex.data(), modelIndex.size() *
         sizeof(uint16_t), MTL::ResourceStorageModeShared);
 }
+void Geometry::CreateModelIndexNormalBuffer(MTL::Device* device, std::vector <uint16_t> modelIndex)
+{
+    modelBufferIndexNormal = device->newBuffer(modelIndex.data(), modelIndex.size() *
+        sizeof(uint16_t), MTL::ResourceStorageModeShared);
+}
+
 
 MTL::Buffer* Geometry::GetModelBufferVertex()
 {
     return modelBufferVertex;
 }
-MTL::Buffer* Geometry::GetModelBufferIndex()
+
+MTL::Buffer* Geometry::GetModelBufferNormal()
 {
-    return modelBufferIndex;
+    return modelBufferNormal;
+}
+MTL::Buffer* Geometry::GetModelBufferIndexVertex()
+{
+    return modelBufferIndexVertex;
+}
+
+MTL::Buffer* Geometry::GetModelBufferIndexNormal()
+{
+    return modelBufferIndexNormal;
 }
 
 void Geometry::SetModelVertex(std::vector <float> Vertex)
 {
     modelVertex = Vertex; 
 }
-void Geometry::SetModelIndex(std::vector <uint16_t> Index)
+void Geometry::SetModelNormal(std::vector<float> Normal)
 {
-    modelIndex = Index;
+    modelNormal = Normal;
+}
+void Geometry::SetModelIndexVertex(std::vector <uint16_t> Index)
+{
+    modelIndexVertex = Index;
+}
+void Geometry::SetModelIndexNormal(std::vector <uint16_t> Index)
+{
+    modelIndexNormal = Index;
 }
 std::vector<float> Geometry::GetModelVertex()
 {
     return modelVertex;
 }
 
-std::vector<uint16_t> Geometry::GetModelIndex()
+std::vector<float> Geometry::GetModelNormal()
 {
-    return modelIndex;
+    return modelNormal;
 }
 
+std::vector<uint16_t> Geometry::GetModelIndexVertex()
+{
+    return modelIndexVertex;
+}
+
+std::vector<uint16_t> Geometry::GetModelIndexNormal()
+{
+    return modelIndexNormal;
+}
 

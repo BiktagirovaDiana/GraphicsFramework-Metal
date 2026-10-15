@@ -25,6 +25,9 @@ class Renderer
 public:
     Renderer(MTL::Device* device, Controller* controller);
     ~Renderer();
+    
+    void CreateModel(std::string NameModel, Geometry& model);
+    
     void Draw(CA::MetalDrawable* drawable);
     void DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model);
     

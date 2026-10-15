@@ -17,11 +17,7 @@ Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device
     CreateRenderPipeline();
     CreateDepth();
 
-    parser.OpenModel("Cube");
-    cube.SetModelVertex(parser.GetModelVertex());
-    cube.SetModelIndex(parser.GetModelIndex());
-    cube.CreateModelVertexBuffer(device, cube.GetModelVertex());
-    cube.CreateModelIndexBuffer(device, cube.GetModelIndex());
+    CreateModel("Cube", cube);
 }
 Renderer::~Renderer()
 {
@@ -30,6 +26,19 @@ Renderer::~Renderer()
     depthStencilState->release();
 }
 
+void Renderer::CreateModel(std::string NameModel, Geometry& model)
+{
+    parser.OpenModel(NameModel);
+    model.SetModelVertex(parser.GetModelVertex());
+    model.SetModelIndexVertex(parser.GetModelIndexVertex());
+    model.SetModelIndexNormal(parser.GetModelIndexNormal());
+    model.SetModelNormal(parser.GetModelNormal());
+    model.CreateModelVertexBuffer(device, model.GetModelVertex());
+    model.CreateModelIndexVertexBuffer(device, model.GetModelIndexVertex());
+    model.CreateModelIndexNormalBuffer(device, model.GetModelIndexNormal());
+    model.CreateModelNormalBuffer(device, model.GetModelNormal());
+};
+
 void Renderer::UpdateMatrices(CA::MetalDrawable* drawable)
 {
     MTL::Texture* drawableTexture = drawable->texture();
@@ -37,7 +46,7 @@ void Renderer::UpdateMatrices(CA::MetalDrawable* drawable)
     projectionMatrix = matrix.ProjectionMatrix(
         static_cast<int>(drawableTexture->width()),
         static_cast<int>(drawableTexture->height()),
-        120,
+        60,
         0.1f,
         50.0f);
 }
@@ -125,6 +134,10 @@ void Renderer::UpdateCamera(float deltaTime)
 void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
 {
     encoder -> setVertexBuffer(model.GetModelBufferVertex(), 0 ,0);
+    encoder -> setVertexBuffer(model.GetModelBufferNormal(), 0, 4);
+    encoder -> setVertexBuffer(model.GetModelBufferIndexVertex(), 0, 5);
+    encoder -> setVertexBuffer(model.GetModelBufferIndexNormal(), 0, 6);
+    
     if(n < 181)
     {
         n = n + 1;
@@ -132,20 +145,19 @@ void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
     else{
         n = 0;
     }
-    matrix_float4x4 modelMatrix = matrix.MakeRotation(0.0f, n, 0.0f);
-    
-    
+    modelMatrix = matrix.MakeRotation(0.0f, 0.0f, 0.0f);
     
     encoder -> setVertexBytes(&modelMatrix, sizeof(modelMatrix), 1);
     encoder -> setVertexBytes(&viewMatrix, sizeof(viewMatrix), 2);
     encoder -> setVertexBytes(&projectionMatrix, sizeof(projectionMatrix), 3);
     
+    
     simd::float4 red = {1.0f, 0.0f, 0.0f, 1.0f};
     encoder->setFragmentBytes(&red, sizeof(red), 0);
     
     
-    encoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, model.GetModelIndex().size(),
-        MTL::IndexTypeUInt16, model.GetModelBufferIndex(),0);
+    //encoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, model.GetModelIndexVertex().size(),MTL::IndexTypeUInt16, model.GetModelBufferIndexVertex(),0);
+    encoder->drawPrimitives(MTL::PrimitiveTypeTriangle,NS::UInteger(0),model.GetModelIndexVertex().size());
     
 
 }

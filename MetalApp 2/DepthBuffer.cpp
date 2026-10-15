@@ -22,8 +22,6 @@ void DepthBuffer::CreateDepthTexture(MTL::Device *device, NS::UInteger width, NS
     depgthDescriptor->setUsage(MTL::TextureUsageRenderTarget);
     depgthDescriptor->setStorageMode(MTL::StorageModePrivate);
     
-    
-    
     depgthDescriptor->setUsage(MTL::TextureUsageRenderTarget);
     depgthDescriptor->setStorageMode(MTL::StorageModePrivate);
     depthTexture = device->newTexture(depgthDescriptor);

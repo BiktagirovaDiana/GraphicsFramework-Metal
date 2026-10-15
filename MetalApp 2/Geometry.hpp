@@ -30,49 +30,38 @@ public:
     MTL::Buffer* CreatePlaneBuffer(MTL::Device* device);
     
     void CreateModelVertexBuffer(MTL::Device* device, std::vector <float> modelVertex);
-    void CreateModelIndexBuffer(MTL::Device* device, std::vector <uint16_t> modelIndex);
+    void CreateModelNormalBuffer(MTL::Device* device, std::vector <float> modelNormal);
+    void CreateModelIndexVertexBuffer(MTL::Device* device, std::vector <uint16_t> modelIndexVertex);
+    void CreateModelIndexNormalBuffer(MTL::Device* device, std::vector <uint16_t> modelIndexVertex);
     
     void SetModelVertex(std::vector <float> Vertex);
-    void SetModelIndex(std::vector <uint16_t> Index);
+    void SetModelNormal(std::vector <float> Normal);
+    void SetModelIndexVertex(std::vector <uint16_t> Index);
+    void SetModelIndexNormal(std::vector <uint16_t> Index);
+    
     std::vector<float> GetModelVertex();
-    std::vector<uint16_t> GetModelIndex();
+    std::vector<float> GetModelNormal();
+    std::vector<uint16_t> GetModelIndexVertex();
+    std::vector<uint16_t> GetModelIndexNormal();
     
     MTL::Buffer* GetModelBufferVertex();
-    MTL::Buffer* GetModelBufferIndex();
+    MTL::Buffer* GetModelBufferNormal();
+    MTL::Buffer* GetModelBufferIndexVertex();
+    MTL::Buffer* GetModelBufferIndexNormal();
+    
 
-    uint16_t indices[36] =
-    {
-        // Front
-        0, 1, 2,
-        0, 2, 3,
-
-        // Back
-        4, 6, 5,
-        4, 7, 6,
-
-        // Left
-        0, 3, 7,
-        0, 7, 4,
-
-        // Right
-        1, 5, 6,
-        1, 6, 2,
-
-        // Top
-        3, 2, 6,
-        3, 6, 7,
-
-        // Bottom
-        0, 4, 5,
-        0, 5, 1
-    };
     
 private:
     std::vector <float> modelVertex;
-    std::vector <uint16_t> modelIndex;
+    std::vector <float> modelNormal;
+    std::vector <uint16_t> modelIndexVertex;
+    std::vector <uint16_t> modelIndexNormal;
     
     MTL::Buffer* modelBufferVertex;
-    MTL::Buffer* modelBufferIndex;
+    MTL::Buffer* modelBufferNormal;
+    MTL::Buffer* modelBufferIndexVertex;
+    MTL::Buffer* modelBufferIndexNormal;
+    
     
 };
 
