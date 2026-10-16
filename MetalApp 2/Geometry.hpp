@@ -29,25 +29,27 @@ public:
     MTL::Buffer* CreateCubeBuffer(MTL::Device* device);
     MTL::Buffer* CreatePlaneBuffer(MTL::Device* device);
     
-    void CreateModelVertexBuffer(MTL::Device* device, std::vector <float> modelVertex);
-    void CreateModelNormalBuffer(MTL::Device* device, std::vector <float> modelNormal);
-    void CreateModelIndexVertexBuffer(MTL::Device* device, std::vector <uint16_t> modelIndexVertex);
-    void CreateModelIndexNormalBuffer(MTL::Device* device, std::vector <uint16_t> modelIndexVertex);
     
-    void SetModelVertex(std::vector <float> Vertex);
-    void SetModelNormal(std::vector <float> Normal);
-    void SetModelIndexVertex(std::vector <uint16_t> Index);
-    void SetModelIndexNormal(std::vector <uint16_t> Index);
+    void SetModelVertex(MTL::Device* device, std::vector <float> Vertex);
+    void SetModelNormal(MTL::Device* device, std::vector <float> Normal);
+    void SetModelUV(MTL::Device* device, std::vector <float> UV);
+    void SetModelIndexVertex(MTL::Device* device, std::vector <uint16_t> Index);
+    void SetModelIndexNormal(MTL::Device* device, std::vector <uint16_t> Index);
+    void SetModelIndexUV(MTL::Device* device, std::vector <uint16_t> Index);
     
     std::vector<float> GetModelVertex();
     std::vector<float> GetModelNormal();
+    std::vector<float> GetModelUV();
     std::vector<uint16_t> GetModelIndexVertex();
     std::vector<uint16_t> GetModelIndexNormal();
+    std::vector<uint16_t> GetModelIndexUV();
     
     MTL::Buffer* GetModelBufferVertex();
     MTL::Buffer* GetModelBufferNormal();
+    MTL::Buffer* GetModelBufferUV();
     MTL::Buffer* GetModelBufferIndexVertex();
     MTL::Buffer* GetModelBufferIndexNormal();
+    MTL::Buffer* GetModelBufferIndexUV();
     
     void CreateNormal();
 
@@ -55,13 +57,17 @@ public:
 private:
     std::vector <float> modelVertex;
     std::vector <float> modelNormal;
+    std::vector <float> modelUV;
     std::vector <uint16_t> modelIndexVertex;
     std::vector <uint16_t> modelIndexNormal;
+    std::vector <uint16_t> modelIndexUV;
     
     MTL::Buffer* modelBufferVertex;
     MTL::Buffer* modelBufferNormal;
+    MTL::Buffer* modelBufferUV;
     MTL::Buffer* modelBufferIndexVertex;
     MTL::Buffer* modelBufferIndexNormal;
+    MTL::Buffer* modelBufferIndexUV;
     
     
 };

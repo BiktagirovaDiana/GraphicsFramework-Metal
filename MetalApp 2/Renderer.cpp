@@ -30,14 +30,12 @@ Renderer::~Renderer()
 void Renderer::CreateModel(std::string NameModel, Geometry& model)
 {
     parser.OpenModel(NameModel);
-    model.SetModelVertex(parser.GetModelVertex());
-    model.SetModelIndexVertex(parser.GetModelIndexVertex());
-    model.SetModelNormal(parser.GetModelNormal());
-    model.SetModelIndexNormal(parser.GetModelIndexNormal());
-    model.CreateModelVertexBuffer(device, model.GetModelVertex());
-    model.CreateModelIndexVertexBuffer(device, model.GetModelIndexVertex());
-    model.CreateModelIndexNormalBuffer(device, model.GetModelIndexNormal());
-    model.CreateModelNormalBuffer(device, model.GetModelNormal());
+    
+    model.SetModelVertex(device, parser.GetModelVertex());
+    model.SetModelIndexVertex(device, parser.GetModelIndexVertex());
+    model.SetModelNormal(device, parser.GetModelNormal());
+    model.SetModelIndexNormal(device, parser.GetModelIndexNormal());
+    
 };
 
 void Renderer::UpdateMatrices(CA::MetalDrawable* drawable)
@@ -48,7 +46,7 @@ void Renderer::UpdateMatrices(CA::MetalDrawable* drawable)
         static_cast<int>(drawableTexture->width()),
         static_cast<int>(drawableTexture->height()),
         60,
-        0.1f,
+        0.001f,
         50.0f);
 }
 
@@ -160,6 +158,7 @@ void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
     
     //encoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, model.GetModelIndexVertex().size(),MTL::IndexTypeUInt16, model.GetModelBufferIndexVertex(),0);
     encoder->drawPrimitives(MTL::PrimitiveTypeTriangle,NS::UInteger(0),model.GetModelIndexVertex().size());
+    //encoder->drawPrimitives(MTL::PrimitiveTypeTriangle,NS::UInteger(0),model.GetModelIndexVertex().size());
     
 
 }

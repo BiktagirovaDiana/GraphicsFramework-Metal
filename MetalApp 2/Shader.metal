@@ -62,7 +62,7 @@ fragment float4 fragmentShader(VertexOut in [[stage_in]],
                                constant float4 *color [[buffer(0)]])
 {
     float3 normal = normalize(in.normal);
-    float Intensive = 2.0f;
+    float Intensive = 2.0f; 
 
     float3 lightDirection = normalize(float3(0.25f, 1.0f, 0.5f));
     float diffuse = max(dot(normal, lightDirection), 0.0f);
