@@ -86,6 +86,10 @@ MTL::Buffer* Geometry::GetModelBufferIndexNormal()
 {
     return modelBufferIndexNormal;
 }
+MTL::Buffer* Geometry::GetModelBufferIndexUV()
+{
+    return modelBufferIndexUV;
+}
 
 void Geometry::SetModelVertex(MTL::Device* device, std::vector <float> Vertex)
 {

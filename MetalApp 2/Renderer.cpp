@@ -11,7 +11,7 @@
 #include "Renderer.hpp"
 #include <iostream>
 
-Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller)
+Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller), locationTexture("Location.png", device)
 {
     commandQueue = device->newCommandQueue(); //очередь буффер команд из GPU
     CreateRenderPipeline();
@@ -35,6 +35,8 @@ void Renderer::CreateModel(std::string NameModel, Geometry& model)
     model.SetModelIndexVertex(device, parser.GetModelIndexVertex());
     model.SetModelNormal(device, parser.GetModelNormal());
     model.SetModelIndexNormal(device, parser.GetModelIndexNormal());
+    model.SetModelUV(device, parser.GetModelUV());
+    model.SetModelIndexUV(device, parser.GetModelIndexUV());
     
 };
 
@@ -133,10 +135,16 @@ void Renderer::UpdateCamera(float deltaTime)
 
 void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
 {
+    modelMatrix = matrix.MakeRotation(0.0f, 0.0f, 0.0f);
+    encoder -> setVertexBytes(&modelMatrix, sizeof(modelMatrix), 1);
+    encoder -> setVertexBytes(&viewMatrix, sizeof(viewMatrix), 2);
+    encoder -> setVertexBytes(&projectionMatrix, sizeof(projectionMatrix), 3);
     encoder -> setVertexBuffer(model.GetModelBufferVertex(), 0 ,0);
     encoder -> setVertexBuffer(model.GetModelBufferNormal(), 0, 4);
     encoder -> setVertexBuffer(model.GetModelBufferIndexVertex(), 0, 5);
     encoder -> setVertexBuffer(model.GetModelBufferIndexNormal(), 0, 6);
+    encoder -> setVertexBuffer(model.GetModelBufferUV(), 0, 7);
+    encoder -> setVertexBuffer(model.GetModelBufferIndexUV(), 0, 8);
     
     if(n < 181)
     {
@@ -145,21 +153,21 @@ void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
     else{
         n = 0;
     }
-    modelMatrix = matrix.MakeRotation(0.0f, 0.0f, 0.0f);
-    
-    encoder -> setVertexBytes(&modelMatrix, sizeof(modelMatrix), 1);
-    encoder -> setVertexBytes(&viewMatrix, sizeof(viewMatrix), 2);
-    encoder -> setVertexBytes(&projectionMatrix, sizeof(projectionMatrix), 3);
-    
-    
-    simd::float4 red = {1.0f, 0.0f, 0.0f, 1.0f};
-    encoder->setFragmentBytes(&red, sizeof(red), 0);
-    
+   
+
+    //encoder->setFragmentBytes(&red, sizeof(red), 0);
+    encoder->setFragmentTexture(locationTexture.GetTexture(), 0);
+    encoder->setFragmentSamplerState(locationTexture.GetSampler(), 0);
     
     //encoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, model.GetModelIndexVertex().size(),MTL::IndexTypeUInt16, model.GetModelBufferIndexVertex(),0);
-    encoder->drawPrimitives(MTL::PrimitiveTypeTriangle,NS::UInteger(0),model.GetModelIndexVertex().size());
     //encoder->drawPrimitives(MTL::PrimitiveTypeTriangle,NS::UInteger(0),model.GetModelIndexVertex().size());
+    //encoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle,model.GetModelIndexVertex().size(),MTL::IndexTypeUInt16,model.GetModelBufferIndex(),0);
     
+    encoder->drawPrimitives(
+        MTL::PrimitiveTypeTriangle,
+        static_cast<NS::UInteger>(0),
+        static_cast<NS::UInteger>(model.GetModelIndexVertex().size())
+    );
 
 }
 

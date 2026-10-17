@@ -14,6 +14,7 @@ struct VertexOut
 {
     float4 position [[position]];
     float3 normal;
+    float2 uv;
 };
 
 
@@ -25,11 +26,14 @@ struct VertexOut
                                constant float *normalVertices [[buffer((4))]],
                                constant ushort *vertexIndex[[buffer (5)]],
                                constant ushort *normalIndex[[buffer (6)]],
-                               ushort id[[vertex_id]])
+                               constant float *UV[[buffer (7)]],
+                               constant ushort *UVIndex[[buffer (8)]],
+                               uint id[[vertex_id]])
 {
     
     uint v = uint(vertexIndex[id]) * 3;
     uint n = uint(normalIndex[id]) * 3;
+    uint uv = uint(UVIndex[id]) * 2;
 
     const float positionX = tringleVertices[v];
     const float positionY = tringleVertices[v + 1];
@@ -47,7 +51,7 @@ struct VertexOut
     float4 appliedViewMatrix = (*viewMatrix) * appliedModelMatrix;
     float4 appliedProjectionMatrix = (*projectionMatrix) * appliedViewMatrix;
 
-    //return appliedProjectionMatrix;
+    float2 uvCoordinates = float2(UV[uv], 1.0f - UV[uv + 1]);
     
     //Применение модель матрицы на  нормали
     float3x3 normalMatrix = float3x3((*modelMatrix)[0].xyz,(*modelMatrix)[1].xyz,(*modelMatrix)[2].xyz);
@@ -55,19 +59,22 @@ struct VertexOut
     VertexOut out;
         out.position = appliedProjectionMatrix;
         out.normal = normalize(normalMatrix * normal);
+        out.uv = uvCoordinates;
         return out;
 }
-
+//constant float4 *color [[buffer(0)]]
 fragment float4 fragmentShader(VertexOut in [[stage_in]],
-                               constant float4 *color [[buffer(0)]])
+                               texture2d<float> texture [[texture(0)]],
+                               sampler textureSampler[[sampler(0)]])
 {
+    float4 color = texture.sample(textureSampler, in.uv);
     float3 normal = normalize(in.normal);
     float Intensive = 2.0f; 
 
-    float3 lightDirection = normalize(float3(0.25f, 1.0f, 0.5f));
+    float3 lightDirection = normalize(float3(0.55f, 0.5f, 0.5f));
     float diffuse = max(dot(normal, lightDirection), 0.0f);
 
-    float3 finalColor = color->rgb * diffuse * Intensive;
+    float3 finalColor = color.rgb * (0.5f + diffuse * Intensive);
 
-    return float4(finalColor, color->a);
+    return float4(finalColor, color.a);
 }

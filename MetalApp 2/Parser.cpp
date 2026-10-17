@@ -179,6 +179,10 @@ std::vector <uint16_t> Parser::GetModelIndexNormal()
 {
     return modelIndexNormal;
 }
+std::vector <uint16_t> Parser::GetModelIndexUV()
+{
+    return modelIndexUV;
+}
 Parser::~Parser()
 {
     

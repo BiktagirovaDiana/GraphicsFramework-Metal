@@ -13,6 +13,7 @@
 #include "DepthBuffer.hpp"
 #include "Controller.hpp"
 #include "Parser.hpp"
+#include "Texture.hpp"
 #include <chrono>
 #include <simd/simd.h>
 #define NS_PRIVATE_IMPLEMENTATION
@@ -66,6 +67,7 @@ private:
     Geometry geometry;
     Geometry cube;
     Geometry location;
+    Texture locationTexture;
     Matrix matrix;
     DepthBuffer depthBuffer;
     Parser parser;
