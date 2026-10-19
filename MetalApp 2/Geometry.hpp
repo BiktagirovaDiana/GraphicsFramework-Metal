@@ -36,6 +36,8 @@ public:
     void SetModelIndexVertex(MTL::Device* device, std::vector <uint16_t> Index);
     void SetModelIndexNormal(MTL::Device* device, std::vector <uint16_t> Index);
     void SetModelIndexUV(MTL::Device* device, std::vector <uint16_t> Index);
+
+    
     
     std::vector<float> GetModelVertex();
     std::vector<float> GetModelNormal();
@@ -62,13 +64,12 @@ private:
     std::vector <uint16_t> modelIndexNormal;
     std::vector <uint16_t> modelIndexUV;
     
-    MTL::Buffer* modelBufferVertex;
-    MTL::Buffer* modelBufferNormal;
-    MTL::Buffer* modelBufferUV;
-    MTL::Buffer* modelBufferIndexVertex;
-    MTL::Buffer* modelBufferIndexNormal;
-    MTL::Buffer* modelBufferIndexUV;
-    
+    MTL::Buffer* modelBufferVertex = nullptr;
+    MTL::Buffer* modelBufferNormal = nullptr;
+    MTL::Buffer* modelBufferUV = nullptr;
+    MTL::Buffer* modelBufferIndexVertex = nullptr;
+    MTL::Buffer* modelBufferIndexNormal = nullptr;
+    MTL::Buffer* modelBufferIndexUV = nullptr;
     
 };
 

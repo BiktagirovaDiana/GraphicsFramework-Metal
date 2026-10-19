@@ -82,7 +82,6 @@ void Renderer::Draw(CA::MetalDrawable* drawable)
     
     UpdateCamera(deltaTime);
     UpdateMatrices(drawable);
-    //DrawModel(encoder, cube);
     DrawModel(encoder, location);
     
     
@@ -103,34 +102,49 @@ void Renderer::UpdateCamera(float deltaTime)
 
         float cameraSpeed = 3.0f * deltaTime;
 
-        simd::float3 forward =
-            simd::normalize(cameraTarget - cameraPosition);
+        simd::float3 forward = simd::normalize(cameraTarget - cameraPosition);
 
-        simd::float3 right =
-            simd::normalize(simd::cross(forward, cameraUp));
+        simd::float3 right = simd::normalize(simd::cross(forward, cameraUp));
 
         simd::float3 movement = {0.0f, 0.0f, 0.0f};
 
-        if (controller->IsKeyDown(Key::W))
-            movement += forward;
+    if (controller->IsKeyDown(Key::W))
+    {
+        movement += forward;
+    }
+            
 
-        if (controller->IsKeyDown(Key::S))
-            movement -= forward;
+    if (controller->IsKeyDown(Key::S))
+    {
+        movement -= forward;
+    }
+            
 
-        if (controller->IsKeyDown(Key::A))
-            movement -= right;
+    if (controller->IsKeyDown(Key::A))
+    {
+        movement -= right;
+    }
+           
 
-        if (controller->IsKeyDown(Key::D))
-            movement += right;
+    if (controller->IsKeyDown(Key::D))
+    {
+        movement += right;
+    }
+            
 
-        if (controller->IsKeyDown(Key::Space))
-            movement += cameraUp;
+    if (controller->IsKeyDown(Key::Space))
+    {
+        movement += cameraUp;
+    }
+           
 
-        if (controller->IsKeyDown(Key::Shift))
-            movement -= cameraUp;
-
-        cameraPosition += movement * cameraSpeed;
-        cameraTarget += movement * cameraSpeed;
+    if (controller->IsKeyDown(Key::Shift))
+    {
+        movement -= cameraUp;
+    }
+            
+    cameraPosition += movement * cameraSpeed;
+    cameraTarget += movement * cameraSpeed;
 }
 
 void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
@@ -155,19 +169,10 @@ void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
     }
    
 
-    //encoder->setFragmentBytes(&red, sizeof(red), 0);
     encoder->setFragmentTexture(locationTexture.GetTexture(), 0);
     encoder->setFragmentSamplerState(locationTexture.GetSampler(), 0);
-    
-    //encoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, model.GetModelIndexVertex().size(),MTL::IndexTypeUInt16, model.GetModelBufferIndexVertex(),0);
-    //encoder->drawPrimitives(MTL::PrimitiveTypeTriangle,NS::UInteger(0),model.GetModelIndexVertex().size());
-    //encoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle,model.GetModelIndexVertex().size(),MTL::IndexTypeUInt16,model.GetModelBufferIndex(),0);
-    
-    encoder->drawPrimitives(
-        MTL::PrimitiveTypeTriangle,
-        static_cast<NS::UInteger>(0),
-        static_cast<NS::UInteger>(model.GetModelIndexVertex().size())
-    );
+
+    encoder->drawPrimitives(MTL::PrimitiveTypeTriangle, static_cast<NS::UInteger>(0),static_cast<NS::UInteger>(model.GetModelIndexVertex().size()));
 
 }
 
@@ -177,6 +182,7 @@ void Renderer::CreateDepth()
     depthStencilDescriptor->setDepthCompareFunction(MTL::CompareFunctionLess);
     depthStencilDescriptor->setDepthWriteEnabled(true);
     depthStencilState = device->newDepthStencilState(depthStencilDescriptor);
+    
     depthStencilDescriptor->release();
 }
 void Renderer::CreateRenderRenderPassDescriptor(CA::MetalDrawable* drawable)
@@ -208,8 +214,6 @@ void Renderer::CreateRenderPipeline()
 
     pipelineDescriptor-> setVertexFunction(vertexFunction);
     pipelineDescriptor-> setFragmentFunction(fragmentFunction);
-    
-    
     pipelineDescriptor->colorAttachments() ->object(0) ->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
     pipelineDescriptor->setDepthAttachmentPixelFormat(MTL::PixelFormatDepth32Float);
     

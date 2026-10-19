@@ -13,6 +13,57 @@ Geometry::Geometry()
 
 Geometry::~Geometry()
 {
+    if(modelBufferVertex)
+    {
+        modelBufferVertex->release();
+    }
+    if(modelBufferNormal)
+    {
+        modelBufferNormal->release();
+    }
+    if(modelBufferUV)
+    {
+        
+        modelBufferUV->release();
+    }
+    if(modelBufferIndexVertex)
+    {
+        modelBufferIndexVertex->release();
+    }
+    if(modelBufferIndexNormal)
+    {
+        modelBufferIndexNormal->release();
+    }
+    
+    if(modelBufferIndexUV)
+    {
+        modelBufferIndexUV->release();
+    }
+    if(!modelVertex.empty())
+    {
+        modelVertex.clear();
+    }
+    if(!modelNormal.empty())
+    {
+        modelNormal.clear();
+    }
+    if(!modelUV.empty())
+    {
+        modelUV.clear();
+    }
+    if(!modelIndexVertex.empty())
+    {
+        modelIndexVertex.clear();
+    }
+    if(!modelIndexNormal.empty())
+    {
+        modelIndexNormal.clear();
+    }
+    if(!modelIndexUV.empty())
+    {
+        modelIndexUV.clear();
+    }
+    
 }
 MTL::Buffer* Geometry::CreateTriangleBuffer(MTL::Device* device)
 {
@@ -62,8 +113,6 @@ MTL::Buffer* Geometry::CreateCubeBuffer(MTL::Device* device)
 }
 
 
-
-
 MTL::Buffer* Geometry::GetModelBufferVertex()
 {
     return modelBufferVertex;
@@ -93,12 +142,24 @@ MTL::Buffer* Geometry::GetModelBufferIndexUV()
 
 void Geometry::SetModelVertex(MTL::Device* device, std::vector <float> Vertex)
 {
+    if (modelBufferVertex)
+       {
+           modelBufferVertex->release();
+           modelBufferVertex = nullptr;
+       }
+    
     modelVertex = Vertex;
     modelBufferVertex = device->newBuffer(modelVertex.data(),modelVertex.size() * sizeof(float), MTL::ResourceStorageModeShared);
 
 }
 void Geometry::SetModelNormal(MTL::Device* device, std::vector<float> Normal)
 {
+    if(modelBufferNormal)
+    {
+        modelBufferNormal->release();
+        modelBufferNormal= nullptr;
+    }
+    
     modelNormal = Normal;
     if(Normal.empty())
     {
@@ -109,18 +170,31 @@ void Geometry::SetModelNormal(MTL::Device* device, std::vector<float> Normal)
 }
 void Geometry::SetModelUV(MTL::Device* device, std::vector<float> UV)
 {
+    if(modelBufferUV)
+    {
+        modelBufferUV->release();
+        modelBufferUV=nullptr;
+    }
     modelUV = UV;
     modelBufferUV = device->newBuffer(modelUV.data(), modelUV.size() * sizeof(float), MTL::ResourceStorageModeShared);
 }
 void Geometry::SetModelIndexVertex(MTL::Device* device,  std::vector <uint16_t> Index)
 {
+    if(modelBufferIndexVertex)
+    {
+        modelBufferIndexVertex->release();
+        modelBufferIndexVertex=nullptr;
+    }
     modelIndexVertex = Index;
-    modelBufferIndexVertex = device->newBuffer(modelIndexVertex.data(), modelIndexVertex.size() *
-        sizeof(uint16_t), MTL::ResourceStorageModeShared);
+    modelBufferIndexVertex = device->newBuffer(modelIndexVertex.data(), modelIndexVertex.size() * sizeof(uint16_t), MTL::ResourceStorageModeShared);
 }
 void Geometry::SetModelIndexNormal(MTL::Device* device,  std::vector <uint16_t> Index)
 {
-    
+    if(modelBufferIndexNormal)
+    {
+        modelBufferIndexNormal->release();
+        modelBufferIndexNormal=nullptr;
+    }
     modelIndexNormal = Index;
     if(Index.empty())
     {
@@ -131,7 +205,11 @@ void Geometry::SetModelIndexNormal(MTL::Device* device,  std::vector <uint16_t> 
 
 void Geometry::SetModelIndexUV(MTL::Device* device,  std::vector <uint16_t> Index)
 {
-    
+    if(modelBufferIndexUV)
+    {
+        modelBufferIndexUV->release();
+        modelBufferIndexUV=nullptr;
+    }
     modelIndexUV = Index;
     modelBufferIndexUV = device->newBuffer(modelIndexUV.data(), modelIndexUV.size() * sizeof(uint16_t), MTL::ResourceStorageModeShared);
 }
@@ -175,7 +253,14 @@ std::vector<uint16_t> Geometry::GetModelIndexUV()
 
 void Geometry::CreateNormal()
 {
-    
+    if(!modelNormal.empty())
+    {
+        modelNormal.clear();
+    }
+    if(!modelIndexNormal.empty())
+    {
+        modelIndexNormal.clear();
+    }
     std::vector <simd::float3> positionVertex;
     for (int i = 1; i != modelVertex.size() + 1; i++)
     {
@@ -212,6 +297,5 @@ void Geometry::CreateNormal()
             modelIndexNormal.push_back((i-1)/3);
         }
     }
-    
 }
 

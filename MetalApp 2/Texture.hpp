@@ -36,7 +36,7 @@ private:
     
     std::vector<uint8_t> pixels;
     
-    MTL::Texture* texture;
+    MTL::Texture* texture = nullptr;
     MTL::SamplerState* state = nullptr;
 };
 
