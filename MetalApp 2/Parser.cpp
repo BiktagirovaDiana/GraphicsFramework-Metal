@@ -11,7 +11,7 @@ Parser::Parser()
 {
     
 };
-void Parser::OpenModelOBJ(std::string nameFileModel, Geometry* geometry)
+void Parser::OpenModelOBJ(std::string nameFileModel, Geometry* geometry, Material* material)
 {
     std::vector <float> modelVertex;
     std::vector <float> modelNormal;
@@ -182,12 +182,120 @@ void Parser::OpenModelOBJ(std::string nameFileModel, Geometry* geometry)
     geometry->SetModelUV(modelUV);
     geometry->SetModelIndexUV(modelIndexUV);
 }
-void Parser::OpenModelMTL(std::string nameFileModel)
+void Parser::OpenModelMTL(std::string nameFileModel, Material* material)
 {
+    simd::float3 Ka;
+    simd::float3 Kd;
+    simd::float3 Ks;
+    simd::float3 Ke;
+    
+    float Ns;
+    float Ni;
+    float d;
+    float Tr;
+    float illum;
+    float Tf;
+
     std::ifstream fileModel("Assets/Models/" + nameFileModel);
+    if(!fileModel.is_open())
+    {
+        std::cout << "Не удалось открыть модель" << std::endl;
+        return;
+    }
     
+    std::string line; //строка
     
+    while(std::getline(fileModel, line))
+    {
+        std::istringstream stream(line);
+        std::string type;
+        
+        stream >> type;
+        
+        
+        if(type == "Ka")
+        {
+            float x, y, z;
+            if (stream >> x >> y >> z)
+            {
+                Ka = {x, y, z};
+            }
+        }
+        if(type == "Kd")
+        {
+            float x, y, z;
+            if (stream >> x >> y >> z)
+            {
+                Kd = {x, y, z};
+            }
+        }
+        if(type == "Ks")
+        {
+            float x, y, z;
+            if (stream >> x >> y >> z)
+            {
+                Ks = {x, y, z};
+            }
+        }
+        if(type == "Ke")
+        {
+            float x, y, z;
+            if (stream >> x >> y >> z)
+            {
+                Ke = {x, y, z};
+            }
+        }
+        if(type == "Ns")
+        {
+            float x;
+            if (stream >> x)
+            {
+                Ns = x;
+            }
+        }
+        if(type == "Ni")
+        {
+            float x;
+            if (stream >> x)
+            {
+                Ni = x;
+            }
+        }
+        if(type == "Tr")
+        {
+            float x;
+            if (stream >> x)
+            {
+                Tr = x;
+            }
+        }
+        if(type == "Tf")
+        {
+            float x;
+            if (stream >> x)
+            {
+                Tf = x;
+            }
+        }
+        if(type == "illum")
+        {
+            float x;
+            if (stream >> x)
+            {
+                illum = x;
+            }
+        }
+        if(type == "d")
+        {
+            float x;
+            if (stream >> x)
+            {
+                d = x;
+            }
+        }
+    }
     
+    material->CreateMaterial(Ka, Kd, Ks, Ke, Tf, Ns, Ni, d, Tr);
 }
 
 Parser::~Parser()

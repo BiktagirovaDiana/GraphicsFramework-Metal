@@ -17,7 +17,7 @@ Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device
     CreateRenderPipeline();
     CreateDepth();
     
-    CreateModel("Location", location);
+    CreateModel("Location", location, locationMaterial);
 }
 Renderer::~Renderer()
 {
@@ -26,9 +26,9 @@ Renderer::~Renderer()
     depthStencilState->release();
 }
 
-void Renderer::CreateModel(std::string NameModel, Geometry& model)
+void Renderer::CreateModel(std::string NameModel, Geometry& model, Material& material)
 {
-    parser.OpenModelOBJ(NameModel, &model);
+    parser.OpenModelOBJ(NameModel, &model, &material);
     
 };
 

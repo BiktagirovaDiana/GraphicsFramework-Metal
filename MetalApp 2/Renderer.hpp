@@ -14,6 +14,7 @@
 #include "Controller.hpp"
 #include "Parser.hpp"
 #include "Texture.hpp"
+#include "Material.hpp"
 #include <chrono>
 #include <simd/simd.h>
 #define NS_PRIVATE_IMPLEMENTATION
@@ -27,7 +28,7 @@ public:
     Renderer(MTL::Device* device, Controller* controller);
     ~Renderer();
     
-    void CreateModel(std::string NameModel, Geometry& model);
+    void CreateModel(std::string NameModel, Geometry& model, Material& material);
     
     void Draw(CA::MetalDrawable* drawable);
     void DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model);
@@ -66,6 +67,7 @@ private:
     
     Geometry location;
     Texture locationTexture;
+    Material locationMaterial;
     Matrix matrix;
     DepthBuffer depthBuffer;
     Parser parser;

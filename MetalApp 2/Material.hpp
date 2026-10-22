@@ -16,16 +16,22 @@ class Material
 public:
     Material();
     ~Material();
-private:
-    simd::float3 Ambient; //цвет фонового освещения
-    simd::float3 Diffese; //цвет диффуз отражения
-    simd::float3 Specular; //цвет зеркал отражения
-    simd::float3 Emissive; //цвет собсвенного свечения.
     
-    float SpecularExpent; //степень блеска
-    float OpticalDensity; //показатель преломления света
-    float Dissolve; //непрозрачность материала
-    float Transparency; //прозрачность
-    float TransmissionFilter; //цветовой фильтр проходящего света
+    void CreateMaterial(simd::float3 Ka,simd::float3 Kd, simd::float3 Ks,simd::float3 Ke, simd::float3 Tf, float Ns, float Ni, float d, float Tr);
+    
+private:
+    simd::float3 ambient = {0.0f, 0.0f, 0.0f}; //цвет фонового освещения
+    simd::float3 diffese = {0.8f, 0.8f, 0.8f}; //цвет диффуз отражения
+    simd::float3 specular = {0.0f, 0.0f, 0.0f}; //цвет зеркал отражения
+    simd::float3 emissive = {0.0f, 0.0f, 0.0f}; //цвет собсвенного свечения.
+    simd::float3 transmissionFilter; //цветовой фильтр проходящего света
+    
+    float specularExpent = 1.0f; //степень блеска
+    float opticalDensity = 1.0f; //показатель преломления света
+    float dissolve = 1.0f; //непрозрачность материала
+    float transparency; //прозрачность
+    
+    
+    
 };
 #endif /* Material_hpp */

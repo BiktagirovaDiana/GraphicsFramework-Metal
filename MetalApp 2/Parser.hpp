@@ -14,6 +14,7 @@
 #include <sstream>
 #include <filesystem>
 #include "Geometry.hpp"
+#include "Material.hpp"
 
 //#include <string>
 
@@ -23,8 +24,8 @@ class Parser
 public:
     Parser();
     ~Parser();
-    void OpenModelOBJ(std::string nameFileModel, Geometry* geometry);
-    void OpenModelMTL(std::string nameFileModel);
+    void OpenModelOBJ(std::string nameFileModel, Geometry* geometry, Material* material);
+    void OpenModelMTL(std::string nameFileModel, Material* material);
     
 private:
     bool isNormal;
