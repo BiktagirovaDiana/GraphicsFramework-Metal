@@ -10,9 +10,16 @@
 Parser::Parser()
 {
     
-}
-void Parser::OpenModelOBJ(std::string nameFileModel)
+};
+void Parser::OpenModelOBJ(std::string nameFileModel, Geometry* geometry)
 {
+    std::vector <float> modelVertex;
+    std::vector <float> modelNormal;
+    std::vector <float> modelUV;
+    std::vector <uint16_t> modelIndexVertex;
+    std::vector <uint16_t> modelIndexNormal;
+    std::vector <uint16_t> modelIndexUV;
+    
     isNormal = false;
     
     std::ifstream fileModel("Assets/Models/" + nameFileModel + ".obj");
@@ -22,13 +29,8 @@ void Parser::OpenModelOBJ(std::string nameFileModel)
         return;
     }
     std::string line; //строка
-    
-    modelVertex.clear();
-    modelIndexVertex.clear();
-    modelNormal.clear();
-    modelIndexNormal.clear();
-    modelUV.clear();
-    
+    geometry->ClearAll();
+
     while(std::getline(fileModel, line))
     {
         std::istringstream stream(line);
@@ -166,6 +168,19 @@ void Parser::OpenModelOBJ(std::string nameFileModel)
         }
     }
     
+    geometry->SetModelVertex(modelVertex);
+    geometry->SetModelIndexVertex(modelIndexVertex);
+    if(modelNormal.empty())
+    {
+        geometry->CreateNormal();
+    }
+    else
+    {
+        geometry->SetModelNormal(modelNormal);
+        geometry->SetModelIndexNormal(modelIndexNormal);
+    }
+    geometry->SetModelUV(modelUV);
+    geometry->SetModelIndexUV(modelIndexUV);
 }
 void Parser::OpenModelMTL(std::string nameFileModel)
 {
@@ -174,30 +189,7 @@ void Parser::OpenModelMTL(std::string nameFileModel)
     
     
 }
-std::vector <float> Parser::GetModelVertex()
-{
-    return modelVertex;
-}
-std::vector <float> Parser::GetModelNormal()
-{
-    return modelNormal;
-}
-std::vector <float> Parser::GetModelUV()
-{
-    return modelUV;
-}
-std::vector <uint16_t> Parser::GetModelIndexVertex()
-{
-    return modelIndexVertex;
-}
-std::vector <uint16_t> Parser::GetModelIndexNormal()
-{
-    return modelIndexNormal;
-}
-std::vector <uint16_t> Parser::GetModelIndexUV()
-{
-    return modelIndexUV;
-}
+
 Parser::~Parser()
 {
     

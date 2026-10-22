@@ -23,28 +23,12 @@ class Parser
 public:
     Parser();
     ~Parser();
-    void OpenModelOBJ(std::string nameFileModel);
+    void OpenModelOBJ(std::string nameFileModel, Geometry* geometry);
     void OpenModelMTL(std::string nameFileModel);
-    
-    std::vector <float> GetModelVertex();
-    std::vector <float> GetModelNormal();
-    std::vector <float> GetModelUV();
-    std::vector <uint16_t> GetModelIndexVertex();
-    std::vector <uint16_t> GetModelIndexNormal();
-    std::vector <uint16_t> GetModelIndexUV();
-    
-    Geometry geometry;
     
 private:
     bool isNormal;
-    std::vector <float> modelVertex;
-    std::vector <float> modelNormal;
-    std::vector <float> modelUV;
-    std::vector <uint16_t> modelIndexVertex;
-    std::vector <uint16_t> modelIndexNormal;
-    std::vector <uint16_t> modelIndexUV;
     std::string nameFileMTL;
-    
     
 };
 #endif /* Parser_hpp */

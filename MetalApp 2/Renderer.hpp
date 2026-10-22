@@ -64,8 +64,6 @@ private:
     std::chrono::steady_clock::time_point lastFrameTime = std::chrono::steady_clock::now();
     float deltaTime = 0.0f;
     
-    Geometry geometry;
-    Geometry cube;
     Geometry location;
     Texture locationTexture;
     Matrix matrix;

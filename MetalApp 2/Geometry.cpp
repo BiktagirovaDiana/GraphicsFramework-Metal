@@ -7,8 +7,9 @@
 
 #include "Geometry.hpp"
 
-Geometry::Geometry()
+Geometry::Geometry(MTL::Device* device) : device(device)
 {
+    
 }
 
 Geometry::~Geometry()
@@ -65,7 +66,7 @@ Geometry::~Geometry()
     }
     
 }
-MTL::Buffer* Geometry::CreateTriangleBuffer(MTL::Device* device)
+MTL::Buffer* Geometry::CreateTriangleBuffer()
 {
     
     float triangleVertices[] =
@@ -78,7 +79,7 @@ MTL::Buffer* Geometry::CreateTriangleBuffer(MTL::Device* device)
     //возвращаем данные вершин треугольника для буффера
     return device->newBuffer(triangleVertices,sizeof(triangleVertices),MTL::ResourceStorageModeShared);
 }
-MTL::Buffer* Geometry::CreateSquareBuffer(MTL::Device* device)
+MTL::Buffer* Geometry::CreateSquareBuffer()
 {
     float squareVertices[] =
     {
@@ -95,7 +96,7 @@ MTL::Buffer* Geometry::CreateSquareBuffer(MTL::Device* device)
     return device->newBuffer(squareVertices,sizeof(squareVertices),MTL::ResourceStorageModeShared);
 }
 
-MTL::Buffer* Geometry::CreateCubeBuffer(MTL::Device* device)
+MTL::Buffer* Geometry::CreateCubeBuffer()
 {
     float cubeVertices[] =
     {
@@ -140,7 +141,7 @@ MTL::Buffer* Geometry::GetModelBufferIndexUV()
     return modelBufferIndexUV;
 }
 
-void Geometry::SetModelVertex(MTL::Device* device, std::vector <float> Vertex)
+void Geometry::SetModelVertex(std::vector <float> Vertex)
 {
     if (modelBufferVertex)
        {
@@ -152,7 +153,7 @@ void Geometry::SetModelVertex(MTL::Device* device, std::vector <float> Vertex)
     modelBufferVertex = device->newBuffer(modelVertex.data(),modelVertex.size() * sizeof(float), MTL::ResourceStorageModeShared);
 
 }
-void Geometry::SetModelNormal(MTL::Device* device, std::vector<float> Normal)
+void Geometry::SetModelNormal(std::vector<float> Normal)
 {
     if(modelBufferNormal)
     {
@@ -168,7 +169,7 @@ void Geometry::SetModelNormal(MTL::Device* device, std::vector<float> Normal)
     
     modelBufferNormal = device->newBuffer(modelNormal.data(), modelNormal.size() * sizeof(float), MTL::ResourceStorageModeShared);
 }
-void Geometry::SetModelUV(MTL::Device* device, std::vector<float> UV)
+void Geometry::SetModelUV(std::vector<float> UV)
 {
     if(modelBufferUV)
     {
@@ -178,7 +179,7 @@ void Geometry::SetModelUV(MTL::Device* device, std::vector<float> UV)
     modelUV = UV;
     modelBufferUV = device->newBuffer(modelUV.data(), modelUV.size() * sizeof(float), MTL::ResourceStorageModeShared);
 }
-void Geometry::SetModelIndexVertex(MTL::Device* device,  std::vector <uint16_t> Index)
+void Geometry::SetModelIndexVertex(std::vector <uint16_t> Index)
 {
     if(modelBufferIndexVertex)
     {
@@ -188,7 +189,7 @@ void Geometry::SetModelIndexVertex(MTL::Device* device,  std::vector <uint16_t> 
     modelIndexVertex = Index;
     modelBufferIndexVertex = device->newBuffer(modelIndexVertex.data(), modelIndexVertex.size() * sizeof(uint16_t), MTL::ResourceStorageModeShared);
 }
-void Geometry::SetModelIndexNormal(MTL::Device* device,  std::vector <uint16_t> Index)
+void Geometry::SetModelIndexNormal(std::vector <uint16_t> Index)
 {
     if(modelBufferIndexNormal)
     {
@@ -203,7 +204,7 @@ void Geometry::SetModelIndexNormal(MTL::Device* device,  std::vector <uint16_t> 
     modelBufferIndexNormal = device->newBuffer(modelIndexNormal.data(), modelIndexNormal.size() * sizeof(uint16_t), MTL::ResourceStorageModeShared);
 }
 
-void Geometry::SetModelIndexUV(MTL::Device* device,  std::vector <uint16_t> Index)
+void Geometry::SetModelIndexUV(std::vector <uint16_t> Index)
 {
     if(modelBufferIndexUV)
     {
@@ -297,5 +298,43 @@ void Geometry::CreateNormal()
             modelIndexNormal.push_back((i-1)/3);
         }
     }
+    modelBufferNormal = device->newBuffer(modelNormal.data(), modelNormal.size() * sizeof(float), MTL::ResourceStorageModeShared);
+    modelBufferIndexNormal = device->newBuffer(modelIndexNormal.data(), modelIndexNormal.size() * sizeof(uint16_t), MTL::ResourceStorageModeShared);
 }
+
+void Geometry::ClearAll()
+{
+    
+    modelVertex.clear();
+    modelNormal.clear();
+    modelUV.clear();
+    modelIndexVertex.clear();
+    modelIndexNormal.clear();
+    modelIndexUV.clear();
+    
+    if(!(modelBufferVertex == nullptr))
+    {
+        modelBufferVertex->release();
+    }
+    if(!(modelBufferNormal == nullptr))
+    {
+        modelBufferNormal->release();
+    }
+    if(!(modelBufferUV == nullptr))
+    {
+        modelBufferUV->release();
+    }
+    if(!(modelBufferIndexVertex == nullptr))
+    {
+        modelBufferIndexVertex->release();
+    }
+    if(!(modelBufferIndexNormal == nullptr))
+    {
+        modelBufferIndexNormal->release();
+    }
+    if(!(modelBufferIndexUV == nullptr))
+    {
+        modelBufferIndexUV->release();
+    }
+};
 

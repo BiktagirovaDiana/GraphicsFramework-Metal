@@ -21,21 +21,21 @@ struct Vertex
 class Geometry
 {
 public:
-    Geometry();
+    Geometry(MTL::Device* device);
     ~Geometry();
     
-    MTL::Buffer* CreateTriangleBuffer(MTL::Device* device);
-    MTL::Buffer* CreateSquareBuffer(MTL::Device* device);
-    MTL::Buffer* CreateCubeBuffer(MTL::Device* device);
-    MTL::Buffer* CreatePlaneBuffer(MTL::Device* device);
+    MTL::Buffer* CreateTriangleBuffer();
+    MTL::Buffer* CreateSquareBuffer();
+    MTL::Buffer* CreateCubeBuffer();
+    MTL::Buffer* CreatePlaneBuffer();
     
     
-    void SetModelVertex(MTL::Device* device, std::vector <float> Vertex);
-    void SetModelNormal(MTL::Device* device, std::vector <float> Normal);
-    void SetModelUV(MTL::Device* device, std::vector <float> UV);
-    void SetModelIndexVertex(MTL::Device* device, std::vector <uint16_t> Index);
-    void SetModelIndexNormal(MTL::Device* device, std::vector <uint16_t> Index);
-    void SetModelIndexUV(MTL::Device* device, std::vector <uint16_t> Index);
+    void SetModelVertex(std::vector <float> Vertex);
+    void SetModelNormal(std::vector <float> Normal);
+    void SetModelUV(std::vector <float> UV);
+    void SetModelIndexVertex(std::vector <uint16_t> Index);
+    void SetModelIndexNormal(std::vector <uint16_t> Index);
+    void SetModelIndexUV(std::vector <uint16_t> Index);
 
     
     
@@ -54,9 +54,11 @@ public:
     MTL::Buffer* GetModelBufferIndexUV();
     
     void CreateNormal();
-
+    void ClearAll();
     
 private:
+    MTL::Device* device = nullptr;
+    
     std::vector <float> modelVertex;
     std::vector <float> modelNormal;
     std::vector <float> modelUV;

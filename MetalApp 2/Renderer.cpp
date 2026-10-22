@@ -11,13 +11,12 @@
 #include "Renderer.hpp"
 #include <iostream>
 
-Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller), locationTexture("Location.png", device)
+Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller), locationTexture("Location.png", device), location(device)
 {
     commandQueue = device->newCommandQueue(); //очередь буффер команд из GPU
     CreateRenderPipeline();
     CreateDepth();
-
-    //CreateModel("Cube", cube);
+    
     CreateModel("Location", location);
 }
 Renderer::~Renderer()
@@ -29,14 +28,7 @@ Renderer::~Renderer()
 
 void Renderer::CreateModel(std::string NameModel, Geometry& model)
 {
-    parser.OpenModelOBJ(NameModel);
-    
-    model.SetModelVertex(device, parser.GetModelVertex());
-    model.SetModelIndexVertex(device, parser.GetModelIndexVertex());
-    model.SetModelNormal(device, parser.GetModelNormal());
-    model.SetModelIndexNormal(device, parser.GetModelIndexNormal());
-    model.SetModelUV(device, parser.GetModelUV());
-    model.SetModelIndexUV(device, parser.GetModelIndexUV());
+    parser.OpenModelOBJ(NameModel, &model);
     
 };
 
@@ -44,12 +36,8 @@ void Renderer::UpdateMatrices(CA::MetalDrawable* drawable)
 {
     MTL::Texture* drawableTexture = drawable->texture();
     viewMatrix = matrix.ViewMatrix(cameraPosition, cameraTarget, cameraUp);
-    projectionMatrix = matrix.ProjectionMatrix(
-        static_cast<int>(drawableTexture->width()),
-        static_cast<int>(drawableTexture->height()),
-        60,
-        0.001f,
-        50.0f);
+    projectionMatrix = matrix.ProjectionMatrix(static_cast<int>(drawableTexture->width()), static_cast<int>(drawableTexture->height()),
+        60, 0.001f, 50.0f);
 }
 
 void Renderer::UpdateDeltaTime()
