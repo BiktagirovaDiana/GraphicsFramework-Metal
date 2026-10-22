@@ -11,7 +11,7 @@ Parser::Parser()
 {
     
 }
-void Parser::OpenModel(std::string nameFileModel)
+void Parser::OpenModelOBJ(std::string nameFileModel)
 {
     isNormal = false;
     
@@ -34,6 +34,15 @@ void Parser::OpenModel(std::string nameFileModel)
         std::istringstream stream(line);
         std::string type; //тип данных в obj
         stream >> type;
+        
+        if(type == "mtllib")
+        {
+            std::string nameMTL;
+            if(stream >> nameMTL)
+            {
+                nameFileMTL = nameMTL;
+            }
+        }
         if(type == "v")
         {
             float x, y, z;
@@ -155,8 +164,14 @@ void Parser::OpenModel(std::string nameFileModel)
                 }
             }
         }
-        
     }
+    
+}
+void Parser::OpenModelMTL(std::string nameFileModel)
+{
+    std::ifstream fileModel("Assets/Models/" + nameFileModel);
+    
+    
     
 }
 std::vector <float> Parser::GetModelVertex()

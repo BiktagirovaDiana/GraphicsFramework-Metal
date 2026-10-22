@@ -29,7 +29,7 @@ Renderer::~Renderer()
 
 void Renderer::CreateModel(std::string NameModel, Geometry& model)
 {
-    parser.OpenModel(NameModel);
+    parser.OpenModelOBJ(NameModel);
     
     model.SetModelVertex(device, parser.GetModelVertex());
     model.SetModelIndexVertex(device, parser.GetModelIndexVertex());

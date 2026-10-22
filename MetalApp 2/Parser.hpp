@@ -23,7 +23,8 @@ class Parser
 public:
     Parser();
     ~Parser();
-    void OpenModel(std::string nameFileModel);
+    void OpenModelOBJ(std::string nameFileModel);
+    void OpenModelMTL(std::string nameFileModel);
     
     std::vector <float> GetModelVertex();
     std::vector <float> GetModelNormal();
@@ -42,6 +43,7 @@ private:
     std::vector <uint16_t> modelIndexVertex;
     std::vector <uint16_t> modelIndexNormal;
     std::vector <uint16_t> modelIndexUV;
+    std::string nameFileMTL;
     
     
 };
