@@ -7,7 +7,7 @@
 
 #include "Parser.hpp"
 
-Parser::Parser()
+Parser::Parser(MTL::Device* device) : device(device)
 {
     
 };
@@ -167,7 +167,12 @@ void Parser::OpenModelOBJ(std::string nameFileModel, Geometry* geometry, Materia
             }
         }
     }
-    
+    if (!nameFileMTL.empty())
+    {
+        OpenModelMTL(nameFileMTL, material);
+    }
+
+
     geometry->SetModelVertex(modelVertex);
     geometry->SetModelIndexVertex(modelIndexVertex);
     if(modelNormal.empty())
@@ -293,11 +298,29 @@ void Parser::OpenModelMTL(std::string nameFileModel, Material* material)
                 d = x;
             }
         }
+        if(type == "map_Kd")
+        {
+            std::string nameTexture;
+            if(stream >> nameTexture)
+            {
+                SetTexture(nameTexture);
+            }
+        }
     }
     
     material->CreateMaterial(Ka, Kd, Ks, Ke, Tf, Ns, Ni, d, Tr);
+    
+    
+}
+void Parser::SetTexture(std::string nameTextureModel)
+{
+    texture = new Texture(nameTextureModel, device);
 }
 
+Texture* Parser::GetTexture()
+{
+    return texture;
+}
 Parser::~Parser()
 {
     

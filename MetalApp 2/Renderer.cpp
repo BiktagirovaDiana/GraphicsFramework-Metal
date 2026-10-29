@@ -11,7 +11,7 @@
 #include "Renderer.hpp"
 #include <iostream>
 
-Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller), locationTexture("Location.png", device), location(device)
+Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller), location(device), parser(device)
 {
     commandQueue = device->newCommandQueue(); //очередь буффер команд из GPU
     CreateRenderPipeline();
@@ -36,8 +36,7 @@ void Renderer::UpdateMatrices(CA::MetalDrawable* drawable)
 {
     MTL::Texture* drawableTexture = drawable->texture();
     viewMatrix = matrix.ViewMatrix(cameraPosition, cameraTarget, cameraUp);
-    projectionMatrix = matrix.ProjectionMatrix(static_cast<int>(drawableTexture->width()), static_cast<int>(drawableTexture->height()),
-        60, 0.001f, 50.0f);
+    projectionMatrix = matrix.ProjectionMatrix(static_cast<int>(drawableTexture->width()), static_cast<int>(drawableTexture->height()),60, 0.001f, 50.0f);
 }
 
 void Renderer::UpdateDeltaTime()
@@ -157,8 +156,14 @@ void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
     }
    
 
-    encoder->setFragmentTexture(locationTexture.GetTexture(), 0);
-    encoder->setFragmentSamplerState(locationTexture.GetSampler(), 0);
+    Texture* texture = parser.GetTexture();
+    if (!texture || !texture->GetTexture() || !texture->GetSampler())
+    {
+        return;
+    }
+
+    encoder->setFragmentTexture(texture->GetTexture(), 0);
+    encoder->setFragmentSamplerState(texture->GetSampler(), 0);
 
     encoder->drawPrimitives(MTL::PrimitiveTypeTriangle, static_cast<NS::UInteger>(0),static_cast<NS::UInteger>(model.GetModelIndexVertex().size()));
 

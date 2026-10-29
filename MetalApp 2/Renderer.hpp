@@ -66,8 +66,8 @@ private:
     float deltaTime = 0.0f;
     
     Geometry location;
-    Texture locationTexture;
     Material locationMaterial;
+    
     Matrix matrix;
     DepthBuffer depthBuffer;
     Parser parser;

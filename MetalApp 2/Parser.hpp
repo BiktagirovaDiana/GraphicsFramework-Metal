@@ -8,6 +8,7 @@
 #ifndef Parser_hpp
 #define Parser_hpp
 
+
 #include <stdio.h>
 #include <fstream>
 #include <iostream>
@@ -15,6 +16,7 @@
 #include <filesystem>
 #include "Geometry.hpp"
 #include "Material.hpp"
+#include "Texture.hpp"
 
 //#include <string>
 
@@ -22,14 +24,21 @@
 class Parser
 {
 public:
-    Parser();
+    Parser(MTL::Device* device);
     ~Parser();
     void OpenModelOBJ(std::string nameFileModel, Geometry* geometry, Material* material);
     void OpenModelMTL(std::string nameFileModel, Material* material);
+    void SetTexture(std::string nameTextureModel);
+    Texture* GetTexture();
     
 private:
+    
+    MTL::Device* device = nullptr;
+    Texture* texture = nullptr;
+
     bool isNormal;
     std::string nameFileMTL;
+    
     
 };
 #endif /* Parser_hpp */
