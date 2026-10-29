@@ -9,6 +9,7 @@
 #define Geometry_hpp
 
 #include "Metal/Metal.hpp"
+#include "Texture.hpp"
 #include <simd/simd.h>
 #include <vector>
 
@@ -56,6 +57,9 @@ public:
     void CreateNormal();
     void ClearAll();
     
+    void SetTexture(std::string nameTextureModel);
+    Texture* GetTexture();
+    
 private:
     MTL::Device* device = nullptr;
     
@@ -72,6 +76,8 @@ private:
     MTL::Buffer* modelBufferIndexVertex = nullptr;
     MTL::Buffer* modelBufferIndexNormal = nullptr;
     MTL::Buffer* modelBufferIndexUV = nullptr;
+    
+    Texture* texture = nullptr;
     
 };
 

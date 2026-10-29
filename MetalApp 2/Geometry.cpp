@@ -338,3 +338,11 @@ void Geometry::ClearAll()
     }
 };
 
+void Geometry::SetTexture(std::string nameTextureModel)
+{
+    texture = new Texture(nameTextureModel, device);
+};
+Texture*  Geometry::GetTexture()
+{
+    return texture;
+};

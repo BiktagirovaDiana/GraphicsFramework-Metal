@@ -169,7 +169,7 @@ void Parser::OpenModelOBJ(std::string nameFileModel, Geometry* geometry, Materia
     }
     if (!nameFileMTL.empty())
     {
-        OpenModelMTL(nameFileMTL, material);
+        OpenModelMTL(nameFileMTL, material, geometry);
     }
 
 
@@ -187,7 +187,7 @@ void Parser::OpenModelOBJ(std::string nameFileModel, Geometry* geometry, Materia
     geometry->SetModelUV(modelUV);
     geometry->SetModelIndexUV(modelIndexUV);
 }
-void Parser::OpenModelMTL(std::string nameFileModel, Material* material)
+void Parser::OpenModelMTL(std::string nameFileModel, Material* material, Geometry* geometry)
 {
     simd::float3 Ka;
     simd::float3 Kd;
@@ -303,7 +303,8 @@ void Parser::OpenModelMTL(std::string nameFileModel, Material* material)
             std::string nameTexture;
             if(stream >> nameTexture)
             {
-                SetTexture(nameTexture);
+                //SetTexture(nameTexture);
+                geometry->SetTexture(nameTexture);
             }
         }
     }
@@ -312,15 +313,7 @@ void Parser::OpenModelMTL(std::string nameFileModel, Material* material)
     
     
 }
-void Parser::SetTexture(std::string nameTextureModel)
-{
-    texture = new Texture(nameTextureModel, device);
-}
 
-Texture* Parser::GetTexture()
-{
-    return texture;
-}
 Parser::~Parser()
 {
     

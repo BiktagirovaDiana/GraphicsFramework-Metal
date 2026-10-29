@@ -31,7 +31,7 @@ public:
     void CreateModel(std::string NameModel, Geometry& model, Material& material);
     
     void Draw(CA::MetalDrawable* drawable);
-    void DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model);
+    void DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model, matrix_float4x4& modelMatrix);
     
     void CreateRenderPipeline();
     void CreateRenderRenderPassDescriptor(CA::MetalDrawable* drawable);
@@ -58,7 +58,8 @@ private:
     simd_float3 cameraUp = {0.0f, 1.0f, 0.0f};
     simd_float3 cameraPosition = {0.0f, 0.0f, 5.0f};
     float n = 0;
-    matrix_float4x4 modelMatrix = matrix_identity_float4x4;
+    
+    //matrix_float4x4 modelMatrix = matrix_identity_float4x4;
     matrix_float4x4 viewMatrix = matrix_identity_float4x4;
     matrix_float4x4 projectionMatrix = matrix_identity_float4x4;
     
@@ -67,6 +68,9 @@ private:
     
     Geometry location;
     Material locationMaterial;
+    
+    Geometry anchor;
+    Material anchorMaterial;
     
     Matrix matrix;
     DepthBuffer depthBuffer;

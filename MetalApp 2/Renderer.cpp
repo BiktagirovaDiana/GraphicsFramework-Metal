@@ -11,13 +11,14 @@
 #include "Renderer.hpp"
 #include <iostream>
 
-Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller), location(device), parser(device)
+Renderer::Renderer(MTL::Device* device, Controller* controller) :  device(device), controller(controller), location(device), parser(device), anchor(device)
 {
     commandQueue = device->newCommandQueue(); //очередь буффер команд из GPU
     CreateRenderPipeline();
     CreateDepth();
     
     CreateModel("Location", location, locationMaterial);
+    CreateModel("model", anchor, anchorMaterial);
 }
 Renderer::~Renderer()
 {
@@ -29,7 +30,6 @@ Renderer::~Renderer()
 void Renderer::CreateModel(std::string NameModel, Geometry& model, Material& material)
 {
     parser.OpenModelOBJ(NameModel, &model, &material);
-    
 };
 
 void Renderer::UpdateMatrices(CA::MetalDrawable* drawable)
@@ -69,7 +69,12 @@ void Renderer::Draw(CA::MetalDrawable* drawable)
     
     UpdateCamera(deltaTime);
     UpdateMatrices(drawable);
-    DrawModel(encoder, location);
+    
+    matrix_float4x4 matrix1 = matrix.MakeTranslation(0.0f, 0.0f, 0.0f);
+    matrix_float4x4 matrix2 = matrix.MakeTranslation(5.0f, 0.0f, 0.0f);
+    
+    DrawModel(encoder, location, matrix1);
+    DrawModel(encoder, anchor, matrix2);
     
     
     encoder->endEncoding();
@@ -134,9 +139,9 @@ void Renderer::UpdateCamera(float deltaTime)
     cameraTarget += movement * cameraSpeed;
 }
 
-void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
+void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model, matrix_float4x4& modelMatrix)
 {
-    modelMatrix = matrix.MakeRotation(0.0f, 0.0f, 0.0f);
+    //modelMatrix = matrix.MakeRotation(0.0f, 0.0f, 0.0f);
     encoder -> setVertexBytes(&modelMatrix, sizeof(modelMatrix), 1);
     encoder -> setVertexBytes(&viewMatrix, sizeof(viewMatrix), 2);
     encoder -> setVertexBytes(&projectionMatrix, sizeof(projectionMatrix), 3);
@@ -146,17 +151,8 @@ void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
     encoder -> setVertexBuffer(model.GetModelBufferIndexNormal(), 0, 6);
     encoder -> setVertexBuffer(model.GetModelBufferUV(), 0, 7);
     encoder -> setVertexBuffer(model.GetModelBufferIndexUV(), 0, 8);
-    
-    if(n < 181)
-    {
-        n = n + 1;
-    }
-    else{
-        n = 0;
-    }
-   
 
-    Texture* texture = parser.GetTexture();
+    Texture* texture = model.GetTexture();
     if (!texture || !texture->GetTexture() || !texture->GetSampler())
     {
         return;
@@ -164,7 +160,7 @@ void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model)
 
     encoder->setFragmentTexture(texture->GetTexture(), 0);
     encoder->setFragmentSamplerState(texture->GetSampler(), 0);
-
+    texture = nullptr;
     encoder->drawPrimitives(MTL::PrimitiveTypeTriangle, static_cast<NS::UInteger>(0),static_cast<NS::UInteger>(model.GetModelIndexVertex().size()));
 
 }

@@ -27,9 +27,7 @@ public:
     Parser(MTL::Device* device);
     ~Parser();
     void OpenModelOBJ(std::string nameFileModel, Geometry* geometry, Material* material);
-    void OpenModelMTL(std::string nameFileModel, Material* material);
-    void SetTexture(std::string nameTextureModel);
-    Texture* GetTexture();
+    void OpenModelMTL(std::string nameFileModel, Material* material, Geometry* geometry);
     
 private:
     
