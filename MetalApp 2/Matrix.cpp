@@ -15,6 +15,18 @@ Matrix::~Matrix()
 {
 }
 
+
+
+matrix_float4x4 Matrix::MakeTranslation(float x, float y, float z)
+{
+    return matrix_float4x4
+    {
+        simd_make_float4(1.0f, 0.0f, 0.0f, 0.0f),
+        simd_make_float4(0.0f, 1.0f, 0.0f, 0.0f),
+        simd_make_float4(0.0f, 0.0f, 1.0f, 0.0f),
+        simd_make_float4(x, y, z, 1)
+    };
+}
 matrix_float4x4 Matrix::MakeRotation(float x, float y, float z)
 {
     matrix_float4x4 rotationX = MakeRotationX(x);
@@ -65,6 +77,17 @@ matrix_float4x4 Matrix::MakeRotationZ(float angle)
         simd_make_float4(c, -s, 0.0f, 0.0f),
         simd_make_float4(s, c, 0.0f, 0.0f),
         simd_make_float4(0.0f, 0.0f,  1, 0.0f),
+        simd_make_float4(0.0f, 0.0f, 0.0f, 1.0f)
+    };
+}
+
+matrix_float4x4 Matrix::MakeScale(float x, float y, float z)
+{
+    return matrix_float4x4
+    {
+        simd_make_float4(x, 0.0f, 0.0f, 0.0f),
+        simd_make_float4(0.0f, y, 0.0f, 0.0f),
+        simd_make_float4(0.0f, 0.0f, z, 0.0f),
         simd_make_float4(0.0f, 0.0f, 0.0f, 1.0f)
     };
 }

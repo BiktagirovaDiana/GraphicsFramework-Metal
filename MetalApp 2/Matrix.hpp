@@ -16,6 +16,9 @@ public:
     Matrix();
     ~Matrix();
     //Model Matrix
+    
+    matrix_float4x4 MakeTranslation(float x, float y, float z);
+    matrix_float4x4 MakeScale(float x, float y, float z);
     matrix_float4x4 MakeRotation(float x, float y, float z);
     matrix_float4x4 MakeRotationX(float angle);
     matrix_float4x4 MakeRotationY(float angle);
