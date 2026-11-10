@@ -189,9 +189,11 @@ void Parser::OpenModelOBJ(std::string nameFileModel, Geometry* geometry, Materia
 }
 void Parser::OpenModelMTL(std::string nameFileModel, Material* material, Geometry* geometry)
 {
-    simd::float3 Ka;
-    simd::float3 Kd;
-    simd::float3 Ks;
+    MaterialData data = material->GetData();
+    
+    simd::float3 Ka = data.ambient;
+    simd::float3 Kd = data.diffuse;
+    simd::float3 Ks = data.shininess;
     simd::float3 Ke;
     
     float Ns;

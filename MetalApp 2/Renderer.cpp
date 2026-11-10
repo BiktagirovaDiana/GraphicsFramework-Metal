@@ -73,8 +73,8 @@ void Renderer::Draw(CA::MetalDrawable* drawable)
     matrix_float4x4 matrix1 = matrix.MakeTranslation(0.0f, 0.0f, 0.0f);
     matrix_float4x4 matrix2 = matrix.MakeTranslation(5.0f, 0.0f, 0.0f);
     
-    DrawModel(encoder, location, matrix1);
-    DrawModel(encoder, anchor, matrix2);
+    DrawModel(encoder, location, matrix1, locationMaterial);
+    DrawModel(encoder, anchor, matrix2, anchorMaterial);
     
     
     encoder->endEncoding();
@@ -139,7 +139,7 @@ void Renderer::UpdateCamera(float deltaTime)
     cameraTarget += movement * cameraSpeed;
 }
 
-void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model, matrix_float4x4& modelMatrix)
+void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model, matrix_float4x4& modelMatrix, Material& material)
 {
     //modelMatrix = matrix.MakeRotation(0.0f, 0.0f, 0.0f);
     encoder -> setVertexBytes(&modelMatrix, sizeof(modelMatrix), 1);
@@ -161,6 +161,14 @@ void Renderer::DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model, ma
     encoder->setFragmentTexture(texture->GetTexture(), 0);
     encoder->setFragmentSamplerState(texture->GetSampler(), 0);
     texture = nullptr;
+    
+    simd::float3 lightDirection = simd::normalize(simd::float3{0.55f, 0.5f, 0.5f});
+    
+    encoder->setFragmentBytes(&cameraPosition, sizeof(cameraPosition), 0);
+    encoder->setFragmentBytes(&lightDirection, sizeof(lightDirection), 1);
+    MaterialData data = material.GetData();
+    encoder->setFragmentBytes(&data,sizeof(data),2);
+    
     encoder->drawPrimitives(MTL::PrimitiveTypeTriangle, static_cast<NS::UInteger>(0),static_cast<NS::UInteger>(model.GetModelIndexVertex().size()));
 
 }

@@ -31,7 +31,7 @@ public:
     void CreateModel(std::string NameModel, Geometry& model, Material& material);
     
     void Draw(CA::MetalDrawable* drawable);
-    void DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model, matrix_float4x4& modelMatrix);
+    void DrawModel(MTL::RenderCommandEncoder* encoder, Geometry& model, matrix_float4x4& modelMatrix, Material& material);
     
     void CreateRenderPipeline();
     void CreateRenderRenderPassDescriptor(CA::MetalDrawable* drawable);

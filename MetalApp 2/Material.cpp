@@ -32,3 +32,15 @@ void Material::CreateMaterial(simd::float3 Ka,simd::float3 Kd, simd::float3 Ks,s
     dissolve = d;
     transparency = Tr;
 }
+
+MaterialData Material::GetData()
+{
+    MaterialData data;
+
+    data.ambient = ambient;
+    data.diffuse = diffese;
+    data.specular = specular;
+    data.shininess = specularExpent;
+
+    return data;
+}

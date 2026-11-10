@@ -15,6 +15,14 @@ struct VertexOut
     float4 position [[position]];
     float3 normal;
     float2 uv;
+    float3 worldPosition;
+};
+struct MaterialData
+{
+    float3 ambient;
+    float3 diffuse;
+    float3 specular;
+    float shininess;
 };
 
 
@@ -23,7 +31,7 @@ struct VertexOut
                                constant float4x4 *modelMatrix [[buffer(1)]],
                                constant float4x4 *viewMatrix [[buffer(2)]],
                                constant float4x4 *projectionMatrix[[buffer(3)]],
-                               constant float *normalVertices [[buffer((4))]],
+                               constant float *normalVertices [[buffer(4)]],
                                constant ushort *vertexIndex[[buffer (5)]],
                                constant ushort *normalIndex[[buffer (6)]],
                                constant float *UV[[buffer (7)]],
@@ -56,25 +64,50 @@ struct VertexOut
     //Применение модель матрицы на  нормали
     float3x3 normalMatrix = float3x3((*modelMatrix)[0].xyz,(*modelMatrix)[1].xyz,(*modelMatrix)[2].xyz);
     
+    float4 worldPos = (*modelMatrix) * position;
+    
     VertexOut out;
         out.position = appliedProjectionMatrix;
         out.normal = normalize(normalMatrix * normal);
         out.uv = uvCoordinates;
+        out.worldPosition = worldPos.xyz;
         return out;
 }
 //constant float4 *color [[buffer(0)]]
 fragment float4 fragmentShader(VertexOut in [[stage_in]],
                                texture2d<float> texture [[texture(0)]],
-                               sampler textureSampler[[sampler(0)]])
+                               sampler textureSampler[[sampler(0)]],
+                               constant float3 *cameraPosition[[buffer(0)]],
+                               constant float3 *lightPosition[[buffer(1)]],
+                               constant MaterialData &material [[buffer(2)]]
+                               )
 {
+    //чтение текстуры
     float4 color = texture.sample(textureSampler, in.uv);
     float3 normal = normalize(in.normal);
-    float Intensive = 2.0f; 
 
-    float3 lightDirection = normalize(float3(0.55f, 0.5f, 0.5f));
-    float diffuse = max(dot(normal, lightDirection), 0.0f);
+    //диффуз по ламберту
+    //float3 lightDirection = normalize(float3(0.55f, 0.5f, 0.5f));
+    
+   
+    float3 L = normalize(*lightPosition - in.worldPosition);
+    float3 V = normalize(*cameraPosition - in.worldPosition);
+    float3 H = normalize(L + V);
+    float lambert = max(dot(normal, L), 0.0f);
+    
+    float intensiveAmbient = 0.5f;
+    float intensiveSpecular = 0.5f;
+    float3 ambient = material.ambient * intensiveAmbient;
+    float3 diffuse = color.rgb * material.diffuse * lambert;
+    float shininess = material.shininess;;
+    float3 specular = float3(0.0f);
+    if (lambert > 0.0f)
+    {
+        specular = material.specular * intensiveSpecular* pow(max(dot(normal, H), 0.0f), shininess);
+    }
+   
 
-    float3 finalColor = color.rgb * (0.5f + diffuse * Intensive);
+    float3 finalColor = ambient + diffuse + specular;
 
     return float4(finalColor, color.a);
 }
